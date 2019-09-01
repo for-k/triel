@@ -1,11 +1,18 @@
-from rest_framework import viewsets
+from rest_framework import mixins, viewsets
+from rest_framework.viewsets import GenericViewSet
 
-# Create your views here.
 from triel.server.manager.models import Simulator
 from triel.server.manager.serializers import SimulatorSerializer
 
 
-class SimulatorViewSet(viewsets.ModelViewSet):
+class OnlyUpdateViewSet(mixins.RetrieveModelMixin,
+                        mixins.UpdateModelMixin,
+                        mixins.ListModelMixin,
+                        GenericViewSet):
+    pass
+
+
+class SimulatorViewSet(OnlyUpdateViewSet):
     """
     API endpoint that allows groups to be viewed or edited.
     """
