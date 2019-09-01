@@ -1,0 +1,7 @@
+README.md
+setup.py
+triel.egg-info/PKG-INFO
+triel.egg-info/SOURCES.txt
+triel.egg-info/dependency_links.txt
+triel.egg-info/requires.txt
+triel.egg-info/top_level.txt
