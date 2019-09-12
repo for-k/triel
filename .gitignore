@@ -97,3 +97,4 @@ ENV/
 # PyCharm
 .idea/
 *.egg-info
+!/TODO.md

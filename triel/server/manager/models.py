@@ -1,14 +1,13 @@
 from django.db import models
 
 
-# Create your models here.
 class Language(models.Model):
-    name = models.CharField(max_length=255, unique=True)
+    name = models.CharField(max_length=255, unique=True, editable=False)
 
 
 class Simulator(models.Model):
-    name = models.CharField(max_length=255, unique=True)
-    path = models.FileField(null=True)
+    name = models.CharField(max_length=255, unique=True, editable=False)
+    path = models.CharField(max_length=255, null=True)
 
 
 class SimulatorLanguage(models.Model):
@@ -21,7 +20,7 @@ class SimulatorLanguage(models.Model):
 
 
 class Suite(models.Model):
-    name = models.CharField(max_length=255, unique=True)
+    name = models.CharField(max_length=255, unique=True, editable=False)
 
 
 class SuiteSimulator(models.Model):

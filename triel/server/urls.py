@@ -20,6 +20,7 @@ from triel.server.manager import views
 
 router = routers.DefaultRouter()
 router.register(r'simulators', views.SimulatorViewSet)
+router.register(r'suites', views.SuiteViewSet)
 
 urlpatterns = [
     path('', include(router.urls)),
