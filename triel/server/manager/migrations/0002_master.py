@@ -1,22 +1,25 @@
 from django.db import migrations
 
-LANG_VHDL = "vhdl"
-LANG_VERILOG = "verilog"
-
 
 def load_data(apps, schema_editor):
-    vhdl_lang = create(apps, 'Language', name=LANG_VHDL)
-    create(apps, 'Language', name=LANG_VERILOG)
+    vhdl_lang = create(apps, 'Language', name="vhdl")
+    verilog_lang = create(apps, 'Language', name="verilog")
+
     ghdl_sim = create(apps, 'Simulator', name='ghdl')
-    create(apps, 'SimulatorLanguage', simulator=ghdl_sim, language=vhdl_lang)
+    ghdl_sim.languagues.add(vhdl_lang)
+    ghdl_sim.save()
 
     vunit_suite = create(apps, 'Suite', name="vunit")
-    cocotb = create(apps, 'Suite', name="cocotb")
-    edalize = create(apps, 'Suite', name="edalize")
+    vunit_suite.simulators.add(ghdl_sim)
+    vunit_suite.save()
 
-    create(apps, 'SuiteSimulator', suite=vunit_suite, simulator=ghdl_sim)
-    create(apps, 'SuiteSimulator', suite=cocotb, simulator=ghdl_sim)
-    create(apps, 'SuiteSimulator', suite=edalize, simulator=ghdl_sim)
+    cocotb = create(apps, 'Suite', name="cocotb")
+    cocotb.simulators.add(ghdl_sim)
+    cocotb.save()
+
+    edalize = create(apps, 'Suite', name="edalize")
+    edalize.simulators.add(ghdl_sim)
+    edalize.save()
 
 
 def create(apps, model_str, **kwargs):

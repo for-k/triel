@@ -1,7 +1,13 @@
 from rest_framework import serializers
 
-from triel.server.manager.models import Simulator, Suite
+from triel.server.manager.models import Simulator, Suite, Language
 from triel.simulator.validator import validate_simulator
+
+
+class LanguageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Language
+        fields = '__all__'
 
 
 class SimulatorSerializer(serializers.ModelSerializer):

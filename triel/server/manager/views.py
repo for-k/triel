@@ -1,8 +1,8 @@
 from rest_framework import mixins
 from rest_framework.viewsets import GenericViewSet, ReadOnlyModelViewSet
 
-from triel.server.manager.models import Simulator, Suite
-from triel.server.manager.serializers import SimulatorSerializer, SuiteSerializer
+from triel.server.manager.models import Simulator, Suite, Language
+from triel.server.manager.serializers import SimulatorSerializer, SuiteSerializer, LanguageSerializer
 
 
 class OnlyUpdateViewSet(mixins.RetrieveModelMixin,
@@ -10,6 +10,14 @@ class OnlyUpdateViewSet(mixins.RetrieveModelMixin,
                         mixins.ListModelMixin,
                         GenericViewSet):
     pass
+
+
+class LanguageViewSet(ReadOnlyModelViewSet):
+    """
+    API endpoint that allows Suites to be viewed.
+    """
+    queryset = Language.objects.all()
+    serializer_class = LanguageSerializer
 
 
 class SimulatorViewSet(OnlyUpdateViewSet):
