@@ -24,7 +24,7 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('name', models.CharField(editable=False, max_length=255, unique=True)),
                 ('path', models.CharField(max_length=255, null=True)),
-                ('languagues', models.ManyToManyField(editable=False, related_name='simulators', to='manager.Language')),
+                ('languages', models.ManyToManyField(editable=False, related_name='simulators', to='manager.Language')),
             ],
         ),
         migrations.CreateModel(

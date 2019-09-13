@@ -8,7 +8,7 @@ class Language(models.Model):
 class Simulator(models.Model):
     name = models.CharField(max_length=255, unique=True, editable=False)
     path = models.CharField(max_length=255, null=True)
-    languagues = models.ManyToManyField(Language, related_name="simulators", blank=False, editable=False)
+    languages = models.ManyToManyField(Language, related_name="simulators", blank=False, editable=False)
 
 
 class Suite(models.Model):

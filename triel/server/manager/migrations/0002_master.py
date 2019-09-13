@@ -6,7 +6,7 @@ def load_data(apps, schema_editor):
     verilog_lang = create(apps, 'Language', name="verilog")
 
     ghdl_sim = create(apps, 'Simulator', name='ghdl')
-    ghdl_sim.languagues.add(vhdl_lang)
+    ghdl_sim.languages.add(vhdl_lang)
     ghdl_sim.save()
 
     vunit_suite = create(apps, 'Suite', name="vunit")

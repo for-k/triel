@@ -11,6 +11,8 @@ class LanguageSerializer(serializers.ModelSerializer):
 
 
 class SimulatorSerializer(serializers.ModelSerializer):
+    languages = LanguageSerializer(many=True, read_only=True)
+
     def validate_path(self, path):
         return validate_simulator(self.instance.name, path)
 
@@ -20,6 +22,13 @@ class SimulatorSerializer(serializers.ModelSerializer):
 
 
 class SuiteSerializer(serializers.ModelSerializer):
+    class SuiteSimulatorSerializer(serializers.ModelSerializer):
+        class Meta:
+            model = Simulator
+            fields = ('id', 'name')
+
+    simulators = SuiteSimulatorSerializer(many=True, read_only=True)
+
     class Meta:
         model = Suite
         fields = '__all__'
