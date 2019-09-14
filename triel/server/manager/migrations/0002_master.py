@@ -1,5 +1,7 @@
 from django.db import migrations
 
+from triel.server.manager.migrations.utils.db import create
+
 
 def load_data(apps, schema_editor):
     vhdl_lang = create(apps, 'Language', name="vhdl")
@@ -22,19 +24,8 @@ def load_data(apps, schema_editor):
     edalize.save()
 
 
-def create(apps, model_str, **kwargs):
-    AbsModel = apps.get_model('manager', model_str)
-    result_list = AbsModel.objects.filter(**kwargs)
-    if not result_list:
-        result = AbsModel(**kwargs)
-        result.save()
-    else:
-        result = result_list[0]
-    return result
-
-
 class Migration(migrations.Migration):
-    initial = True
+    initial = False
 
     dependencies = [
         ('manager', '0001_initial'),

@@ -22,6 +22,7 @@ router = routers.DefaultRouter()
 router.register(r'languages', views.LanguageViewSet)
 router.register(r'simulators', views.SimulatorViewSet)
 router.register(r'suites', views.SuiteViewSet)
+router.register(r'coco', views.CocoTestViewSet)
 
 urlpatterns = [
     path('', include(router.urls)),
