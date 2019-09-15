@@ -1,26 +1,44 @@
 import subprocess
+from enum import Enum
 
 from rest_framework import serializers
 
-GHDL_NAME = 'ghdl'
-GHDL_EXE = 'ghdl'
-GHDL_ARGS = ("--version")
+
+class LanguageNames(Enum):
+    VHDL = "vhdl",
+    VERILOG = "verilog"
+
+
+class SimulatorNames(Enum):
+    GHDL = 'ghdl'
+    ICARUS = 'icarus'
+
+
+EXE = {
+    SimulatorNames.GHDL.value: 'ghdl',
+    SimulatorNames.ICARUS.value: 'iverilog'
+}
+
+ARGS = {
+    SimulatorNames.GHDL.value: '--version',
+    SimulatorNames.ICARUS.value: '-v'
+}
+
+VALIDATION = {
+    SimulatorNames.GHDL.value: 'ghdl',
+    SimulatorNames.ICARUS.value: 'Icarus Verilog'
+}
 
 
 def validate_simulator(name, path):
-    if name == GHDL_NAME:
-        return validate_ghdl(path)
-
-
-def validate_ghdl(path):
     result = False
     try:
         if not path:
-            path = GHDL_EXE
-        output = subprocess.check_output([path, *GHDL_ARGS]).decode()
-        result = GHDL_NAME in output
+            path = EXE.get(name)
+        output = subprocess.check_output([path, ARGS.get(name)]).decode()
+        result = VALIDATION.get(name) in output
     except FileNotFoundError:
         pass
 
     if not result:
-        raise serializers.ValidationError('The path for GHDL is not valid.')
+        raise serializers.ValidationError(f'The path for {name} is not valid.')

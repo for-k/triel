@@ -8,7 +8,7 @@ class Language(models.Model):
 
 class Simulator(models.Model):
     name = models.CharField(max_length=255, unique=True)
-    path = models.CharField(max_length=255, null=True)
+    path = models.CharField(max_length=512, null=True)
     languages = models.ManyToManyField(Language, related_name="simulators", blank=False, editable=False)
 
 
@@ -21,33 +21,44 @@ class TestBase(models.Model):
     date = models.DateTimeField(default=timezone.now, blank=True)
 
 
+class FileBase(models.Model):
+    path = models.CharField(max_length=512, null=False)
+
+
 class CocoTest(TestBase):
     name = models.CharField(max_length=255, unique=False, null=False)
     language = models.ForeignKey(Language, on_delete=models.DO_NOTHING, null=False)
     top_level = models.CharField(max_length=255, unique=False, null=False)
     simulator = models.ForeignKey(Simulator, on_delete=models.DO_NOTHING, null=False)
     module = models.CharField(max_length=255, null=False)
-    _tests = models.CharField(max_length=255, unique=False, db_column="tests")
-    _files = models.CharField(max_length=255, unique=False, db_column="files")
 
-    @property
-    def tests(self):
-        return eval(self._tests) if self._tests else ''
 
-    @tests.setter
-    def tests(self, tests):
-        self._tests = str(tests)
+class CocoTestFiles(FileBase):
+    test = models.ForeignKey(CocoTest, on_delete=models.CASCADE, related_name='files')
 
-    @property
-    def files(self):
-        return eval(self._files) if self._files else ''
 
-    @files.setter
-    def files(self, files):
-        self._files = str(files)
+class CocoTestFilesTests(FileBase):
+    test = models.ForeignKey(CocoTest, on_delete=models.CASCADE, related_name='tests')
 
 
 class CocoOption(models.Model):
     test = models.ForeignKey(CocoTest, on_delete=models.CASCADE, related_name='options')
     type = models.CharField(max_length=255, unique=False)
     value = models.CharField(max_length=255, unique=False)
+
+
+class EdalizeTest(TestBase):
+    name = models.CharField(max_length=255, unique=False, null=False)
+    top_level = models.CharField(max_length=255, unique=False, null=False)
+    simulator = models.ForeignKey(Simulator, on_delete=models.DO_NOTHING, null=False)
+
+
+class EdalizeTestFiles(FileBase):
+    test = models.ForeignKey(EdalizeTest, on_delete=models.CASCADE, related_name='files')
+    type = models.CharField(max_length=255, unique=False, null=False)
+
+
+class EdalizeStep(models.Model):
+    test = models.ForeignKey(EdalizeTest, on_delete=models.CASCADE, related_name='steps')
+    type = models.CharField(max_length=255, unique=False)
+    parameters = models.CharField(max_length=255, unique=False)

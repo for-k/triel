@@ -34,7 +34,9 @@ setup(
     packages=find_packages(exclude=["*_test", "*_tests"]),
     include_package_data=True,
     install_requires=[
-        "djangorestframework",
-        "django"
+        "djangorestframework < 4",
+        "django < 3",
+        "cocotb-test < 1",
+        "cocotb < 2"
     ],
 )

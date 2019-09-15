@@ -1,9 +1,9 @@
 from rest_framework import mixins
 from rest_framework.viewsets import GenericViewSet, ReadOnlyModelViewSet, ModelViewSet
 
-from triel.server.manager.models import Simulator, Suite, Language, CocoTest
+from triel.server.manager.models import Simulator, Suite, Language, CocoTest, EdalizeTest
 from triel.server.manager.serializers import SimulatorSerializer, SuiteSerializer, LanguageSerializer, \
-    CocoTestSerializer
+    CocoTestSerializer, EdalizeTestSerializer
 
 
 class OnlyUpdateViewSet(mixins.RetrieveModelMixin,
@@ -43,3 +43,11 @@ class CocoTestViewSet(ModelViewSet):
     """
     queryset = CocoTest.objects.all()
     serializer_class = CocoTestSerializer
+
+
+class EdalizeTestViewSet(ModelViewSet):
+    """
+    API endpoint that allows Suites to be viewed.
+    """
+    queryset = EdalizeTest.objects.all()
+    serializer_class = EdalizeTestSerializer
