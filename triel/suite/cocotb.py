@@ -19,9 +19,20 @@ def launch_cocotb_test(test: CocoTest):
 
     files = [file.path for file in test.files.all()]
 
-    run(
+    folder, filename = os.path.split(test.module)
+    module = os.path.splitext(filename)[0]
+
+    sim_result = run(
         verilog_sources=files,
         toplevel=test.top_level,
-        module=test.module,
-        toplevel_lang=language
+        module=module,
+        toplevel_lang=language,
+        run_dir=folder
     )
+
+    result = ""
+    with open(sim_result) as file:
+        for line in file:
+            result += line
+
+    return result

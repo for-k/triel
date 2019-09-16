@@ -99,3 +99,4 @@ ENV/
 *.egg-info
 !/TODO.md
 !/triel_test/cocotbExamples/
+!/triel/sim_build/

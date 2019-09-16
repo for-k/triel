@@ -65,7 +65,7 @@ class CocoTestSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = CocoTest
-        fields = ('id', 'name', 'language', 'top_level', 'simulator', 'module', 'tests', 'options', 'files')
+        fields = ('id', 'name', 'language', 'top_level', 'simulator', 'module', 'tests', 'options', 'files', 'result')
 
     def create(self, validated_data):
         options_data_list = validated_data.pop('options', ())
@@ -85,7 +85,8 @@ class CocoTestSerializer(serializers.ModelSerializer):
         for files_data in files_data_list:
             CocoTestFiles.objects.create(test=test, **files_data)
 
-        launch_cocotb_test(test)
+        test.result = launch_cocotb_test(test)
+        test.save()
 
         return test
 
@@ -102,7 +103,7 @@ class EdalizeTestSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = EdalizeTest
-        fields = ('id', 'name', 'top_level', 'simulator', 'steps', 'files')
+        fields = ('id', 'name', 'top_level', 'simulator', 'steps', 'files', 'result')
 
     def create(self, validated_data):
         steps_data_list = validated_data.pop('steps')

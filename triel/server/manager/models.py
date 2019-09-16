@@ -19,6 +19,7 @@ class Suite(models.Model):
 
 class TestBase(models.Model):
     date = models.DateTimeField(default=timezone.now, blank=True)
+    result = models.TextField(blank=True)
 
 
 class FileBase(models.Model):
