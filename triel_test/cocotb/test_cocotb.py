@@ -2,10 +2,11 @@ import unittest
 
 import requests
 
+COCO_URL = 'http://127.0.0.1:8000/coco/'
+
 
 class Coco(unittest.TestCase):
-    def test_adder(self):
-        url = 'http://127.0.0.1:8000/coco/'
+    def test_adder_vlog(self):
         data = {
             "name": "test_adder_vlog",
             "top_level": "adder",
@@ -18,9 +19,30 @@ class Coco(unittest.TestCase):
                 }
             ]
         }
-        response = requests.post(url, json=data)
+        response = requests.post(COCO_URL, json=data)
         print(response.status_code)
         print(response.json())
+
+        assert response.status_code == 201
+
+    def test_adder_vhdl(self):
+        data = {
+            "name": "test_adder_vhdl",
+            "top_level": "adder",
+            "simulator": 1,
+            "language": 1,
+            "module": "/mnt/data/Programacion/teros/triel/triel_test/scripts/cocotb/simple/test_adder.py",
+            "files": [
+                {
+                    "path": "/mnt/data/Programacion/teros/triel/triel_test/hdl/adder.vhd"
+                }
+            ]
+        }
+        response = requests.post(COCO_URL, json=data)
+        print(response.status_code)
+        print(response.json())
+
+        assert response.status_code == 201
 
 
 if __name__ == '__main__':

@@ -5,7 +5,7 @@ from rest_framework import serializers
 
 
 class LanguageNames(Enum):
-    VHDL = "vhdl",
+    VHDL = "vhdl"
     VERILOG = "verilog"
 
 

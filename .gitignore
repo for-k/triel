@@ -97,6 +97,4 @@ ENV/
 # PyCharm
 .idea/
 *.egg-info
-!/TODO.md
-!/triel_test/cocotbExamples/
-!/triel/sim_build/
+triel/sim_build/
