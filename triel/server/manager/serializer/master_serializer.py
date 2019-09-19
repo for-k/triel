@@ -22,9 +22,11 @@ class SimulatorSerializer(serializers.ModelSerializer):
 
 
 class SimulatorNestedSerializer(serializers.ModelSerializer):
+    languages = LanguageSerializer(many=True, read_only=True)
+
     class Meta:
         model = Simulator
-        fields = ('id', 'name')
+        fields = ('id', 'name', 'languages')
 
 
 class SuiteSerializer(serializers.ModelSerializer):

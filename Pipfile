@@ -10,5 +10,5 @@ triel = {editable = true,path = "."}
 python_version = "3.7"
 
 [dev-packages]
-pytest = "*"
 requests = "*"
+setupHelpers = "*"

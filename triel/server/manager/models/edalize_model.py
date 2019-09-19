@@ -1,6 +1,7 @@
 from django.db import models
 
-from triel.server.manager.models.master_model import Simulator, TestBase, FileBase
+from triel.server.manager.models.master_model import Simulator
+from triel.server.manager.models.test_model import TestBase, FileBase
 
 
 class EdalizeTest(TestBase):
