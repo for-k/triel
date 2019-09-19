@@ -1,9 +1,12 @@
 from rest_framework import mixins
 from rest_framework.viewsets import GenericViewSet, ReadOnlyModelViewSet, ModelViewSet
 
-from triel.server.manager.models import Simulator, Suite, Language, CocoTest, EdalizeTest
-from triel.server.manager.serializers import SimulatorSerializer, SuiteSerializer, LanguageSerializer, \
-    CocoTestSerializer, EdalizeTestSerializer
+from triel.server.manager.models.edalize_model import EdalizeTest
+from triel.server.manager.models.coco_model import CocoTest
+from triel.server.manager.models.master_model import Language, Simulator, Suite
+from triel.server.manager.serializer.edalize_serializer import EdalizeTestSerializer
+from triel.server.manager.serializer.coco_serializer import CocoTestSerializer
+from triel.server.manager.serializer.master_serializer import LanguageSerializer, SimulatorSerializer, SuiteSerializer
 
 
 class OnlyUpdateViewSet(mixins.RetrieveModelMixin,

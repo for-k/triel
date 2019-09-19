@@ -1,7 +1,7 @@
 from django.db import migrations
 
 from triel.server.manager.migrations.utils.db import create
-from triel.server.manager.models import Simulator
+from triel.server.manager.models.master_model import Simulator
 
 
 def load_data(apps, schema_editor):

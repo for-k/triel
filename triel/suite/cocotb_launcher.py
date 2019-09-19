@@ -2,7 +2,7 @@ import os
 
 from cocotb_test.run import run
 
-from triel.server.manager.models import CocoTest
+from triel.server.manager.models.coco_model import CocoTest
 from triel.simulator.validator import SimulatorNames, LanguageNames
 
 
