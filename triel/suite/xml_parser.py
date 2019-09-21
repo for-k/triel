@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import xml.etree.ElementTree as et
 import json
+import os.path
 
 class xml_parser:
     def __init__ (self):
@@ -23,19 +24,24 @@ class xml_parser:
             for std in cases:
                 num_fail=num_fail+1
             self.data["test"].append({"classname":cases.attrib["classname"],"name":cases.attrib["name"],"time":cases.attrib["time"][0:6],"test":"Failed" if cases.findall('failure') else " OK","stdout":std.attrib["stdout"] if cases.findall('failure') else " Test passed","waveform":wave_file})
-        self.data["summary"] = {"test":num_test,"failures":num_fail}
+        self.data["summary"] = {"test":num_test,"failures":num_fail,"errors":"--","skipped":"--"}
 
         self.json_out = json.dumps(self.data)
         return self.json_out
 
-    def vunit_xml(self,xml_file,simulator):
+    def vunit_xml(self,xml_file,simulator,vunit_out_path):
         base = self.parse(xml_file)
+        map_file_path = os.path.join(vunit_out_path,  "vunit_out","test_output","test_name_to_path_mapping.txt")
+        map_file = open(map_file_path,"r")
+        test_map ={}
+        for lines in map_file.readlines():
+            test_map[lines.split()[1]]= os.path.join(vunit_out_path,"vunit_out","test_output",lines.split()[0],simulator,"wave.vcd")
         self.data["summary"]=[]
         self.data["test"]  =[]
-        self.data["summary"] = {"test":base.attrib["tests"],"failures":base.attrib["failures"]}
+        self.data["summary"] = {"test":base.attrib["tests"],"failures":base.attrib["failures"],"errors":base.attrib["errors"],"skipped":base.attrib["skipped"]}
         for cases in base.iter("testcase"):
-            for std in cases:
-                self.data["test"].append({"classname":cases.attrib["classname"],"name":cases.attrib["name"],"time":cases.attrib["time"],"test":"FAIL!!","stdout":std.text,"waveform":cases.attrib["classname"]})
+            for std in cases.iter("system-out"):
+                self.data["test"].append({"classname":cases.attrib["classname"],"name":cases.attrib["name"],"time":cases.attrib["time"],"test":"Failed" if cases.findall('failure') else " OK","stdout":std.text,"waveform":test_map[cases.attrib["classname"]+"."+cases.attrib["name"]]})
 
         self.json_out = json.dumps(self.data)
         return self.json_out
