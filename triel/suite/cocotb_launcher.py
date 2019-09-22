@@ -3,41 +3,46 @@ import os
 from cocotb_test.run import run
 
 from triel.server.manager.models.coco_model import CocoTest
-from triel.simulator.validator import SimulatorNames, LanguageNames
+from triel.simulator.validator import SimulatorNames
+
+
+def generate_relative_imports(wd, filepath):
+    if wd in filepath:
+        extra_route = filepath.split(wd)[1].rsplit('.')[0]
+        relative_import_path = ""
+        for folder in extra_route.split(os.sep):
+            relative_import_path += folder + "."
+        return relative_import_path[:-1]
 
 
 def launch_cocotb_test(test: CocoTest):
-    os.environ["SIM"] = {
-        SimulatorNames.GHDL.value: "ghdl",
-        SimulatorNames.ICARUS.value: "icarus"
+    os.environ["SIM"], language, source_arg = {
+        SimulatorNames.GHDL.value: ("ghdl", "vhdl", "vhdl_sources"),
+        SimulatorNames.ICARUS.value: ("icarus", "verilog", "verilog_sources"),
     }.get(test.simulator.name)
 
-    language, source_args = {
-        LanguageNames.VHDL.value: ("vhdl", "vhdl_sources"),
-        LanguageNames.VERILOG.value: ("verilog", "verilog_sources"),
-    }.get(test.language.name)
+    modules = ""
+    for module in test.modules.all():
+        modules += generate_relative_imports(test.working_dir, module.path) + ','
+    modules = modules[:-1]
 
-    files = [file.path for file in test.files.all()]
+    sources = [src.path for src in test.sources.all()]
 
-    folder, filename = os.path.split(test.module)
-    module = os.path.splitext(filename)[0]
-
-    simulator_args = [option.type + "=" + option.value for option in test.options.all()]
+    simulator_args = [sarg.argument + "=" + sarg.value for sarg in test.simulator_args.all()]
 
     args = {
-        source_args: files,
+        source_arg: sources,
         "toplevel": test.top_level,
-        "module": module,
+        "module": modules,
         "toplevel_lang": language,
-        "run_dir": folder,
+        "run_dir": test.working_dir,
         "simulator_args": simulator_args
     }
 
     sim_result = run(**args)
 
-    result = ""
+    test.result = ""
     with open(sim_result) as file:
         for line in file:
-            result += line
+            test.result += line
 
-    return result

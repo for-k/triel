@@ -1,42 +1,50 @@
+import os
+
 from rest_framework import serializers
-from rest_framework.relations import PrimaryKeyRelatedField
+from rest_framework.exceptions import ValidationError
+from rest_framework.relations import SlugRelatedField
 
 from triel.server.manager.models.coco_model import CocoTest
-from triel.server.manager.serializer.test_serializer import SimulatorArgumentSerializer, FileSerializer
+from triel.server.manager.models.master_model import Simulator
+from triel.server.manager.models.test_model import TestFile, SourceFile, SimulatorArgument
+from triel.server.manager.serializer.test_serializer import SimulatorArgumentSerializer, TestFileSerializer, \
+    SourceFileSerializer, search_before_create
+from triel.suite.cocotb_launcher import launch_cocotb_test
 
 
 class CocoTestSerializer(serializers.ModelSerializer):
-    simulator = PrimaryKeyRelatedField(many=False, read_only=True)
-    modules = FileSerializer(many=True)
-    sources = FileSerializer(many=True)
+    simulator = SlugRelatedField(many=False, queryset=Simulator.objects.all(), slug_field='name')
+    modules = TestFileSerializer(many=True)
+    sources = SourceFileSerializer(many=True)
     simulator_args = SimulatorArgumentSerializer(many=True, required=False)
 
     class Meta:
         model = CocoTest
         fields = '__all__'
 
-    def create(self, validated_data):
-        return super(CocoTestSerializer, self).create(validated_data)
+    def validate_working_dir(self, wd):
+        if os.path.exists(wd):
+            return wd
+        else:
+            raise ValidationError("Invalid path")
 
-        #
-        # options_data_list = validated_data.pop('options', ())
-        # tests_data_list = validated_data.pop('tests', ())
-        # files_data_list = validated_data.pop('files', ())
-        #
-        # test = CocoTest.objects.create(
-        #     language=Language.objects.filter(id=self.context['request'].data['language'])[0],
-        #     simulator=Simulator.objects.filter(id=self.context['request'].data['simulator'])[0],
-        #     **validated_data
-        # )
-        #
-        # for options_data in options_data_list:
-        #     CocoOption.objects.create(test=test, **options_data)
-        # for test_data in tests_data_list:
-        #     CocoTestFilesTests.objects.create(test=test, **test_data)
-        # for files_data in files_data_list:
-        #     CocoTestFiles.objects.create(test=test, **files_data)
-        #
-        # test.result = launch_cocotb_test(test)
-        # test.save()
-        #
-        # return test
+    def create(self, validated_data):
+
+        modules_list = validated_data.pop('modules', ())
+        sources_list = validated_data.pop('sources', ())
+        simulator_args_list = validated_data.pop('simulator_args', ())
+
+        if not validated_data['working_dir'].endswith(os.sep):
+            validated_data['working_dir'] += os.sep
+
+        test = CocoTest.objects.create(**validated_data)
+        test.modules.set([search_before_create(TestFile, module) for module in modules_list])
+        test.sources.set([search_before_create(SourceFile, source) for source in sources_list])
+        test.simulator_args.set([search_before_create(SimulatorArgument, simulator_arg) for simulator_arg in
+                                 simulator_args_list])
+
+        launch_cocotb_test(test)
+
+        test.save()
+
+        return test

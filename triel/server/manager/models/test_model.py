@@ -16,7 +16,8 @@ class SourceFile(FileBase):
 
 
 class TestFile(FileBase):
-    pass
+    def create(self, a):
+        return a
 
 
 class ArgumentBase(models.Model):
