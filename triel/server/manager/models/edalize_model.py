@@ -1,21 +1,13 @@
 from django.db import models
 
 from triel.server.manager.models.master_model import Simulator
-from triel.server.manager.models.test_model import TestBase, FileBase
+from triel.server.manager.models.test_model import TestBase, SuiteArgument, SourceFile, SimulatorArgument
 
 
 class EdalizeTest(TestBase):
-    name = models.CharField(max_length=255, unique=False, null=False)
-    top_level = models.CharField(max_length=255, unique=False, null=False)
+    working_dir = models.CharField(max_length=512, unique=False, null=False)
+    sources = models.ManyToManyField(SourceFile)
+    top_level = models.CharField(max_length=128, unique=False, null=False)
     simulator = models.ForeignKey(Simulator, on_delete=models.DO_NOTHING, null=False)
-
-
-class EdalizeTestFiles(FileBase):
-    test = models.ForeignKey(EdalizeTest, on_delete=models.CASCADE, related_name='files')
-    type = models.CharField(max_length=255, unique=False, null=False)
-
-
-class EdalizeStep(models.Model):
-    test = models.ForeignKey(EdalizeTest, on_delete=models.CASCADE, related_name='steps')
-    type = models.CharField(max_length=255, unique=False)
-    parameters = models.CharField(max_length=255, unique=False)
+    simulator_args = models.ManyToManyField(SimulatorArgument)
+    edalize_args = models.ManyToManyField(SuiteArgument)

@@ -3,7 +3,7 @@ import os
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
-from triel.server.manager.models.test_model import SimulatorArgument, FileBase, TestFile, SourceFile
+from triel.server.manager.models.test_model import SimulatorArgument, FileBase, TestFile, SourceFile, SuiteArgument
 
 
 def search_before_create(model, validated_data):
@@ -42,5 +42,12 @@ class SourceFileSerializer(FileSerializer):
 class SimulatorArgumentSerializer(serializers.ModelSerializer):
     class Meta:
         model = SimulatorArgument
-        fields = ('argument', 'value')
+        fields = '__all__'
+        validators = []
+
+
+class SuiteArgumentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SuiteArgument
+        fields = '__all__'
         validators = []

@@ -30,12 +30,12 @@ class CocoTestSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
 
+        if not validated_data['working_dir'].endswith(os.sep):
+            validated_data['working_dir'] += os.sep
+
         modules_list = validated_data.pop('modules', ())
         sources_list = validated_data.pop('sources', ())
         simulator_args_list = validated_data.pop('simulator_args', ())
-
-        if not validated_data['working_dir'].endswith(os.sep):
-            validated_data['working_dir'] += os.sep
 
         test = CocoTest.objects.create(**validated_data)
         test.modules.set([search_before_create(TestFile, module) for module in modules_list])

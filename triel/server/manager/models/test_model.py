@@ -3,6 +3,8 @@ from django.utils import timezone
 
 
 class TestBase(models.Model):
+    teros_project = models.CharField(max_length=255, null=True)
+    name = models.CharField(max_length=255, null=True)
     date = models.DateTimeField(default=timezone.now, blank=True)
     result = models.TextField(blank=True)
 
@@ -16,16 +18,16 @@ class SourceFile(FileBase):
 
 
 class TestFile(FileBase):
-    def create(self, a):
-        return a
+    pass
 
 
 class ArgumentBase(models.Model):
-    argument = models.CharField(max_length=255)
-    value = models.CharField(max_length=255)
+    group = models.CharField(max_length=255, null=True)
+    argument = models.CharField(max_length=255, null=False)
+    value = models.CharField(max_length=255, null=True)
 
     class Meta:
-        unique_together = ('argument', 'value',)
+        unique_together = ('group', 'argument', 'value',)
 
 
 class SimulatorArgument(ArgumentBase):

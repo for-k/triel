@@ -16,10 +16,6 @@ def load_data(apps, schema_editor):
     icarus_sim.languages.add(verilog_lang)
     icarus_sim.save()
 
-    vunit_suite = create(apps, 'Suite', name="vunit")
-    vunit_suite.simulators.add(ghdl_sim)
-    vunit_suite.save()
-
     cocotb = create(apps, 'Suite', name="cocotb")
     cocotb.simulators.add(ghdl_sim)
     cocotb.simulators.add(icarus_sim)
@@ -27,7 +23,12 @@ def load_data(apps, schema_editor):
 
     edalize = create(apps, 'Suite', name="edalize")
     edalize.simulators.add(ghdl_sim)
+    edalize.simulators.add(icarus_sim)
     edalize.save()
+
+    vunit_suite = create(apps, 'Suite', name="vunit")
+    vunit_suite.simulators.add(ghdl_sim)
+    vunit_suite.save()
 
 
 class Migration(migrations.Migration):

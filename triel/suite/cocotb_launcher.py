@@ -28,7 +28,12 @@ def launch_cocotb_test(test: CocoTest):
 
     sources = [src.path for src in test.sources.all()]
 
-    simulator_args = [sarg.argument + "=" + sarg.value for sarg in test.simulator_args.all()]
+    simulator_args = []
+    for sarg in test.simulator_args.all():
+        text = sarg.argument
+        if sarg.value:
+            text += "=" + sarg.value
+        simulator_args.append(text)
 
     args = {
         source_arg: sources,
@@ -45,4 +50,3 @@ def launch_cocotb_test(test: CocoTest):
     with open(sim_result) as file:
         for line in file:
             test.result += line
-

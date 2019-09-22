@@ -37,6 +37,7 @@ setup(
         "djangorestframework < 4",
         "django < 3",
         "cocotb-test < 1",
-        "cocotb < 2"
+        "cocotb < 2",
+        "edalize < 1"
     ],
 )
