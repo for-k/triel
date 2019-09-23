@@ -30,12 +30,19 @@ class Coco(TrielTestCase):
 
     def test_adder_vhdl(self):
         data = {
+            "suite": "cocotb",
             "working_dir": "/mnt/data/Programacion/teros/triel/triel_test/scripts/cocotb/simple",
-            "modules": [{"path": "/mnt/data/Programacion/teros/triel/triel_test/scripts/cocotb/simple/test_adder.py"}],
-            "sources": [{"path": "/mnt/data/Programacion/teros/triel/triel_test/hdl/adder.vhd"}],
+            "files": [
+                {"name": "/mnt/data/Programacion/teros/triel/triel_test/scripts/cocotb/simple/test_adder.py",
+                 "file_type": "py"},
+                {"name": "/mnt/data/Programacion/teros/triel/triel_test/hdl/adder.vhd",
+                 "file_type": "vhdlSource-2008"}
+            ],
             "top_level": "adder",
-            "simulator": "ghdl",
-            "simulator_args": [{"argument": "--vcd", "value": "func.vcd"}],
+            "tool": "ghdl",
+            "tool_options": [
+                {"group": "--vcd", "argument": "func.vcd"}
+            ]
         }
         response = requests.post(COCO_URL, json=data)
         self.print_response(response)

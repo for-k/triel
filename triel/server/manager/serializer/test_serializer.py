@@ -84,12 +84,13 @@ class TestSerializer(serializers.ModelSerializer):
 
     def validate(self, attrs):
         if 'suite' not in attrs.keys():
-            attrs['suite'] = SuiteNames.EDALIZE.value
+            attrs['suite'] = Suite.objects.filter(name=SuiteNames.EDALIZE.value)[0]
 
-        if attrs['suite'] in (SuiteNames.COCOTB.value, SuiteNames.EDALIZE.value):
+        if attrs['suite'].name in (SuiteNames.COCOTB.value, SuiteNames.EDALIZE.value):
             tool = attrs.get('tool', '')
-            if tool not in (simulator.name for simulator in
-                            Suite.objects.filter(name=attrs['suite'])[0].simulators.all()):
+            if tool:
+                tool = tool.name
+            if tool not in (simulator.name for simulator in attrs['suite'].simulators.all()):
                 raise ValidationError(f"Invalid simulator {tool} for suite {attrs['suite']}")
 
         if attrs['suite'] == SuiteNames.EDALIZE.value:
