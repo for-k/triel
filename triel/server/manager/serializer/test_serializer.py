@@ -4,9 +4,9 @@ from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 from rest_framework.relations import SlugRelatedField
 
-from triel.server.manager.models.master_model import Simulator
-from triel.server.manager.models.test_model import SimulatorArgument, File, ParameterDataTypeChoices, Test, \
-    SuiteChoices, ParameterValue
+from triel.server.manager.models.master_model import Simulator, Suite, SuiteNames
+from triel.server.manager.models.test_model import File, ParameterDataTypeChoices, Test, \
+    ParameterValue, SimulatorArgument
 from triel.suite.cocotb_launcher import launch_cocotb_test
 from triel.suite.edalize_launcher import validate_tool_options, validate_edalize_args, launch_edalize_test
 
@@ -24,14 +24,14 @@ class FileSerializer(serializers.ModelSerializer):
         model = File
         fields = '__all__'
         extra_kwargs = {
-            'path': {'validators': []},
+            'name': {'validators': []},
         }
 
     def validate(self, attrs):
-        if os.path.exists(attrs['path']):
+        if os.path.exists(attrs['name']):
             return attrs
         else:
-            raise ValidationError("Invalid path")
+            raise ValidationError("Invalid name")
 
 
 class ParameterValueSerializer(serializers.ModelSerializer):
@@ -68,7 +68,8 @@ class SimulatorArgumentSerializer(serializers.ModelSerializer):
 class TestSerializer(serializers.ModelSerializer):
     files = FileSerializer(many=True)
     parameters = ParameterValueSerializer(many=True, required=False)
-    tool = SlugRelatedField(many=False, queryset=Simulator.objects.all(), slug_field='name')
+    suite = SlugRelatedField(many=False, queryset=Suite.objects.all(), slug_field='name', required=False)
+    tool = SlugRelatedField(many=False, queryset=Simulator.objects.all(), slug_field='name', required=False)
     tool_options = SimulatorArgumentSerializer(many=True, required=False)
 
     class Meta:
@@ -79,21 +80,27 @@ class TestSerializer(serializers.ModelSerializer):
         if os.path.exists(wd):
             return wd
         else:
-            raise ValidationError("Invalid path")
+            raise ValidationError("Invalid name")
 
     def validate(self, attrs):
         if 'suite' not in attrs.keys():
-            attrs['suite'] = SuiteChoices.edalize.value
+            attrs['suite'] = SuiteNames.EDALIZE.value
 
-        if attrs['tool'] == SuiteChoices.edalize.value:
+        if attrs['suite'] in (SuiteNames.COCOTB.value, SuiteNames.EDALIZE.value):
+            tool = attrs.get('tool', '')
+            if tool not in (simulator.name for simulator in
+                            Suite.objects.filter(name=attrs['suite'])[0].simulators.all()):
+                raise ValidationError(f"Invalid simulator {tool} for suite {attrs['suite']}")
+
+        if attrs['suite'] == SuiteNames.EDALIZE.value:
             if 'name' not in attrs.keys():
                 raise ValidationError("Field name required for Edalize")
-            if 'simulator_args' in attrs.keys() and \
-                    not validate_tool_options(attrs['simulator'].name, attrs['simulator_args']):
-                raise ValidationError(f"Invalid tool options group for simulator {attrs['simulator']}")
+            if 'tool_options' in attrs.keys() and \
+                    not validate_tool_options(attrs['tool'].name, attrs['tool_options']):
+                raise ValidationError(f"Invalid tool options group for tool {attrs['tool']}")
             if 'parameters' in attrs.keys() and \
-                    not validate_edalize_args(attrs['simulator'].name, attrs['parameters'].parameter):
-                raise ValidationError(f"Invalid parameter type for simulator {attrs['simulator']}")
+                    not validate_edalize_args(attrs['tool'].name, attrs['parameters'].parameter):
+                raise ValidationError(f"Invalid parameter type for tool {attrs['tool']}")
 
         return super(TestSerializer, self).validate(attrs)
 
@@ -114,9 +121,9 @@ class TestSerializer(serializers.ModelSerializer):
                              parameters])
 
         {
-            SuiteChoices.edalize.value: launch_edalize_test,
-            SuiteChoices.cocotb.value: launch_cocotb_test,
-        }.get(validated_data['suite'])(test)
+            SuiteNames.EDALIZE.value: launch_edalize_test,
+            SuiteNames.COCOTB.value: launch_cocotb_test,
+        }.get(validated_data['suite'].name)(test)
 
         test.save()
 

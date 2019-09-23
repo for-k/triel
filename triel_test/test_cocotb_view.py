@@ -2,20 +2,27 @@ import unittest
 
 import requests
 
-from triel_test.test_master_view import TrielTestCase, TRIEL_TEST_URL
+from triel_test.test_master_view import TrielTestCase, TRIEL_URL
 
-COCO_URL = TRIEL_TEST_URL + 'coco/'
+COCO_URL = TRIEL_URL + 'tests/'
 
 
 class Coco(TrielTestCase):
     def test_adder_vlog(self):
         data = {
+            "suite": "cocotb",
             "working_dir": "/mnt/data/Programacion/teros/triel/triel_test/scripts/cocotb/simple",
-            "modules": [{"path": "/mnt/data/Programacion/teros/triel/triel_test/scripts/cocotb/simple/test_adder.py"}],
-            "sources": [{"path": "/mnt/data/Programacion/teros/triel/triel_test/hdl/adder.v"}],
+            "files": [
+                {"name": "/mnt/data/Programacion/teros/triel/triel_test/scripts/cocotb/simple/test_adder.py",
+                 "file_type": "py"},
+                {"name": "/mnt/data/Programacion/teros/triel/triel_test/hdl/adder.v",
+                 "file_type": "verilogSource-2005"}
+            ],
             "top_level": "adder",
-            "simulator": "icarus",
-            "simulator_args": [{"argument": "--vcd", "value": "func.vcd"}],
+            "tool": "icarus",
+            "tool_options": [
+                {"group": "--vcd", "argument": "func.vcd"}
+            ]
         }
         response = requests.post(COCO_URL, json=data)
         self.print_response(response)

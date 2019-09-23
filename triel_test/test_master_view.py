@@ -2,10 +2,10 @@ import unittest
 
 import requests
 
-TRIEL_TEST_URL = "http://localhost:8000/"
-LANGUAGE_URL = TRIEL_TEST_URL + 'languages/'
-SIMULATOR_URL = TRIEL_TEST_URL + 'simulators/'
-SUITE_URL = TRIEL_TEST_URL + 'suites/'
+TRIEL_URL = "http://localhost:8000/"
+LANGUAGE_URL = TRIEL_URL + 'languages/'
+SIMULATOR_URL = TRIEL_URL + 'simulators/'
+SUITE_URL = TRIEL_URL + 'suites/'
 
 
 class TrielTestCase(unittest.TestCase):

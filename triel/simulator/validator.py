@@ -1,18 +1,8 @@
 import subprocess
-from enum import Enum
 
 from rest_framework import serializers
 
-
-class LanguageNames(Enum):
-    VHDL = "vhdl"
-    VERILOG = "verilog"
-
-
-class SimulatorNames(Enum):
-    GHDL = 'ghdl'
-    ICARUS = 'icarus'
-
+from triel.server.manager.models.master_model import SimulatorNames
 
 EXE = {
     SimulatorNames.GHDL.value: 'ghdl',

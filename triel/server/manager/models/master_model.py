@@ -1,3 +1,5 @@
+from enum import Enum
+
 from django.db import models
 
 
@@ -16,3 +18,17 @@ class Suite(models.Model):
     simulators = models.ManyToManyField(Simulator, related_name="suites", blank=False, editable=False)
 
 
+class LanguageNames(Enum):
+    VHDL = "vhdl"
+    VERILOG = "verilog"
+
+
+class SimulatorNames(Enum):
+    GHDL = 'ghdl'
+    ICARUS = 'icarus'
+
+
+class SuiteNames(Enum):
+    COCOTB = 'cocotb'
+    EDALIZE = 'edalize'
+    VUNIT = 'vunit'
