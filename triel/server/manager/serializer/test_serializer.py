@@ -2,8 +2,10 @@ import os
 
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
+from rest_framework.relations import SlugRelatedField
 
-from triel.server.manager.models.test_model import SimulatorArgument, FileBase, TestFile, SourceFile, SuiteArgument
+from triel.server.manager.models.master_model import Simulator
+from triel.server.manager.models.test_model import SimulatorArgument, File, ParameterDataTypeChoices, Test
 
 
 def search_before_create(model, validated_data):
@@ -16,8 +18,8 @@ def search_before_create(model, validated_data):
 
 class FileSerializer(serializers.ModelSerializer):
     class Meta:
-        model = FileBase
-        fields = ('path',)
+        model = File
+        fields = '__all__'
         extra_kwargs = {
             'path': {'validators': []},
         }
@@ -29,14 +31,28 @@ class FileSerializer(serializers.ModelSerializer):
             raise ValidationError("Invalid path")
 
 
-class TestFileSerializer(FileSerializer):
-    class Meta(FileSerializer.Meta):
-        model = TestFile
+class ParameterValueSerializer(serializers.ModelSerializer):
+    def validate(self, attrs):
+        try:
+            datatype = attrs['parameter'].datatype
+            if 'default' in attrs.keys():
+                attrs['default'] = self.validate_by_datatype(datatype, attrs['default'])
+            if 'configure' in attrs.keys():
+                attrs['configure'] = self.validate_by_datatype(datatype, attrs['configure'])
+            if 'run' in attrs.keys():
+                attrs['run'] = self.validate_by_datatype(datatype, attrs['run'])
 
+        except Exception:
+            raise ValidationError("Invalid value for this datatype")
 
-class SourceFileSerializer(FileSerializer):
-    class Meta(FileSerializer.Meta):
-        model = SourceFile
+    @staticmethod
+    def validate_by_datatype(datatype, value):
+        if datatype == ParameterDataTypeChoices.bool:
+            return bool(value)
+        elif datatype == ParameterDataTypeChoices.int:
+            return int(value)
+        elif datatype in (ParameterDataTypeChoices.str, ParameterDataTypeChoices.file):
+            return str(value)
 
 
 class SimulatorArgumentSerializer(serializers.ModelSerializer):
@@ -46,8 +62,18 @@ class SimulatorArgumentSerializer(serializers.ModelSerializer):
         validators = []
 
 
-class SuiteArgumentSerializer(serializers.ModelSerializer):
+class TestSerializer(serializers.ModelSerializer):
+    files = FileSerializer(many=True)
+    parameters = ParameterValueSerializer(many=True, required=False)
+    tool = SlugRelatedField(many=False, queryset=Simulator.objects.all(), slug_field='name')
+    tool_options = SimulatorArgumentSerializer(many=True, required=False)
+
     class Meta:
-        model = SuiteArgument
+        model = Test
         fields = '__all__'
-        validators = []
+
+    def validate_working_dir(self, wd):
+        if os.path.exists(wd):
+            return wd
+        else:
+            raise ValidationError("Invalid path")
