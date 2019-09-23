@@ -2,40 +2,40 @@ import os
 import shutil
 
 import edalize
-
 from triel.server.manager.models.edalize_model import EdalizeTest
+
 from triel.simulator.validator import SimulatorNames
 
 
-def validate_simulator_args(simulator, simulator_args):
-    return validate_arg_groups(
-        simulator_args,
-        valid_groups={
+def validate_tool_options(simulator, simulator_args):
+    return validate_argument_in_collection(
+        simulator_args, 'group',
+        valid_options={
             SimulatorNames.GHDL.value: ('analyze_options', 'run_options'),
             SimulatorNames.ICARUS.value: ('timescale', 'iverilog_options'),
         }.get(simulator)
     )
 
 
-def validate_edalize_args(simulator, edalize_args):
-    return validate_arg_groups(
-        edalize_args,
-        valid_groups={
+def validate_edalize_args(simulator, parameter):
+    return validate_argument_in_collection(
+        parameter, 'paramtype',
+        valid_options={
             SimulatorNames.GHDL.value: edalize.ghdl.Ghdl.argtypes,
             SimulatorNames.ICARUS.value: edalize.icarus.Icarus.argtypes,
         }.get(simulator)
     )
 
 
-def validate_arg_groups(input_args_attr, valid_groups):
+def validate_argument_in_collection(args_attr, key, valid_options):
     input_args = []
-    for arg in input_args_attr:
-        if 'group' in arg.keys():
-            input_args.append(arg['group'])
+    for arg in args_attr:
+        if key in arg.keys():
+            input_args.append(arg[key])
     input_args = set(input_args)
 
     for group in input_args:
-        if group not in valid_groups:
+        if group not in valid_options:
             return False
     return True
 
