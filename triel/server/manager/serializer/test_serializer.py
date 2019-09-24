@@ -4,11 +4,14 @@ from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 from rest_framework.relations import SlugRelatedField
 
-from triel.server.manager.models.master_model import Simulator, Suite, SuiteNames
-from triel.server.manager.models.test_model import File, ParameterDataTypeChoices, Test, \
+from triel.server.manager.models.master_enuml import SuiteNames
+from triel.server.manager.models.master_model import Simulator, Suite
+from triel.server.manager.models.test_enum import ParameterDataTypeChoices, FileTypeChoices
+from triel.server.manager.models.test_model import File, Test, \
     ParameterValue, SimulatorArgument
 from triel.suite.cocotb_launcher import launch_cocotb_test
 from triel.suite.edalize_launcher import validate_tool_options, validate_edalize_args, launch_edalize_test
+from triel.suite.vunit_launcher import launch_vunit_test
 
 
 def search_before_create(model, validated_data):
@@ -86,22 +89,28 @@ class TestSerializer(serializers.ModelSerializer):
         if 'suite' not in attrs.keys():
             attrs['suite'] = Suite.objects.filter(name=SuiteNames.EDALIZE.value)[0]
 
-        if attrs['suite'].name in (SuiteNames.COCOTB.value, SuiteNames.EDALIZE.value):
-            tool = attrs.get('tool', '')
-            if tool:
-                tool = tool.name
-            if tool not in (simulator.name for simulator in attrs['suite'].simulators.all()):
-                raise ValidationError(f"Invalid simulator {tool} for suite {attrs['suite']}")
+        tool = attrs.get('tool', '')
+        if tool:
+            tool = tool.name
+        if tool not in (simulator.name for simulator in attrs['suite'].simulators.all()):
+            raise ValidationError(f"Invalid simulator {tool} for suite {attrs['suite'].name}")
 
-        if attrs['suite'] == SuiteNames.EDALIZE.value:
-            if 'name' not in attrs.keys():
-                raise ValidationError("Field name required for Edalize")
+        if attrs['suite'].name in (SuiteNames.EDALIZE.value, SuiteNames.COCOTB.value) and 'name' not in attrs.keys():
+            raise ValidationError(f"Field name required for {attrs['suite'].name}")
+
+        if attrs['suite'].name == SuiteNames.EDALIZE.value:
             if 'tool_options' in attrs.keys() and \
                     not validate_tool_options(attrs['tool'].name, attrs['tool_options']):
                 raise ValidationError(f"Invalid tool options group for tool {attrs['tool']}")
             if 'parameters' in attrs.keys() and \
                     not validate_edalize_args(attrs['tool'].name, attrs['parameters'].parameter):
                 raise ValidationError(f"Invalid parameter type for tool {attrs['tool']}")
+
+        if attrs['suite'].name == SuiteNames.VUNIT.value:
+            if len(attrs['files']) != 1:
+                raise ValidationError(f"Only one file allowed for {attrs['suite'].name} ")
+            elif attrs['files'][0]['file_type'] != FileTypeChoices.py.value:
+                raise ValidationError("Invalid file type")
 
         return super(TestSerializer, self).validate(attrs)
 
@@ -124,6 +133,7 @@ class TestSerializer(serializers.ModelSerializer):
         {
             SuiteNames.EDALIZE.value: launch_edalize_test,
             SuiteNames.COCOTB.value: launch_cocotb_test,
+            SuiteNames.VUNIT.value: launch_vunit_test,
         }.get(validated_data['suite'].name)(test)
 
         test.save()

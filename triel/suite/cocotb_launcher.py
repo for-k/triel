@@ -2,8 +2,10 @@ import os
 
 from cocotb_test.run import run
 
-from triel.server.manager.models.test_model import Test, FileTypeChoices
-from triel.simulator.validator import SimulatorNames
+from triel.server.manager.models.test_model import Test
+from triel.server.manager.models.test_enum import FileTypeChoices
+from triel.server.manager.models.master_enuml import SimulatorNames
+from triel.suite.xml_parser import XmlParser
 
 
 def generate_relative_imports(wd, filepath):
@@ -54,12 +56,9 @@ def launch_cocotb_test(test: Test):
         "module": modules,
         "toplevel_lang": language,
         "run_dir": test.working_dir,
-        "simulator_args": simulator_args
+        "simulation_args": simulator_args
     }
 
     sim_result = run(**args)
 
-    test.result = ""
-    with open(sim_result) as file:
-        for line in file:
-            test.result += line
+    test.result = XmlParser().coco_xml(sim_result, os.path.join(sim_result.rsplit(os.sep, 1)[0], "func.vcd"))

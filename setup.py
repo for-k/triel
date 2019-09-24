@@ -37,6 +37,7 @@ setup(
         "djangorestframework < 4",
         "django < 3",
         "cocotb_test < 1",
-        "edalize < 1"
+        "edalize < 1",
+        "vunit_hdl < 5"
     ],
 )

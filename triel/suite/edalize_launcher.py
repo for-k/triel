@@ -4,7 +4,7 @@ import shutil
 import edalize
 
 from triel.server.manager.models.test_model import Test
-from triel.simulator.validator import SimulatorNames
+from triel.server.manager.models.master_enuml import SimulatorNames
 
 
 def validate_tool_options(tool, tool_options):

@@ -1,40 +1,8 @@
-from enum import Enum
-
 from django.db import models
 from django.utils import timezone
 
 from triel.server.manager.models.master_model import Simulator, Suite
-
-
-class ChoiseModel(Enum):
-    @classmethod
-    def choices(cls):
-        return ((item.value, item.name) for item in cls)
-
-
-class FileTypeChoices(ChoiseModel):
-    qip = "QIP"
-    ucf = "UCF"
-    vlog05 = "verilogSource-2005"
-    vhdl08 = "vhdlSource-2008"
-    xci = "xci"
-    xdc = "xdc"
-    py = "py"
-
-
-class ParameterTypeChoices(ChoiseModel):
-    cmdlinearg = "cmdlinearg"
-    generic = "generic"
-    plusarg = "plusarg"
-    vlogdefine = "vlogdefine"
-    vlogparam = "vlogparam"
-
-
-class ParameterDataTypeChoices(ChoiseModel):
-    bool = "bool"
-    file = "file"
-    int = "int"
-    str = "str"
+from triel.server.manager.models.test_enum import FileTypeChoices, ParameterTypeChoices, ParameterDataTypeChoices
 
 
 class File(models.Model):
@@ -77,7 +45,7 @@ class Test(models.Model):
     working_dir = models.CharField(max_length=512, null=False)
     files = models.ManyToManyField(File)
     parameters = models.ManyToManyField(ParameterValue)
-    top_level = models.CharField(max_length=128, unique=False, null=False)
+    top_level = models.CharField(max_length=128, null=True, blank=True)
     tool = models.ForeignKey(Simulator, on_delete=models.DO_NOTHING, null=True, blank=True)
     tool_options = models.ManyToManyField(SimulatorArgument)
 

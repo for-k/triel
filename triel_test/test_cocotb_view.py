@@ -2,6 +2,8 @@ import unittest
 
 import requests
 
+from triel.server.manager.models.master_enuml import SimulatorNames, SuiteNames
+from triel.server.manager.models.test_enum import FileTypeChoices
 from triel_test.resources_test import resource_test_path
 from triel_test.test_master_view import TrielTestCase, TRIEL_URL
 
@@ -11,16 +13,16 @@ COCO_URL = TRIEL_URL + 'tests/'
 class Coco(TrielTestCase):
     def test_adder_vlog(self):
         data = {
-            "suite": "cocotb",
+            "suite": SuiteNames.COCOTB.value,
             "working_dir": resource_test_path("scripts/cocotb/simple"),
             "files": [
                 {"name": resource_test_path("scripts/cocotb/simple/test_adder.py"),
-                 "file_type": "py"},
+                 "file_type": FileTypeChoices.py.value},
                 {"name": resource_test_path("hdl/adder.v"),
-                 "file_type": "verilogSource-2005"}
+                 "file_type": FileTypeChoices.vlog05.value}
             ],
             "top_level": "adder",
-            "tool": "icarus",
+            "tool": SimulatorNames.ICARUS.value,
             "tool_options": [
                 {"group": "--vcd", "argument": "func.vcd"}
             ]
@@ -31,16 +33,16 @@ class Coco(TrielTestCase):
 
     def test_adder_vhdl(self):
         data = {
-            "suite": "cocotb",
+            "suite": SuiteNames.COCOTB.value,
             "working_dir": resource_test_path("scripts/cocotb/simple"),
             "files": [
                 {"name": resource_test_path("scripts/cocotb/simple/test_adder.py"),
-                 "file_type": "py"},
+                 "file_type": FileTypeChoices.py.value},
                 {"name": resource_test_path("hdl/adder.vhd"),
-                 "file_type": "vhdlSource-2008"}
+                 "file_type": FileTypeChoices.vhdl08.value},
             ],
             "top_level": "adder",
-            "tool": "ghdl",
+            "tool": SimulatorNames.GHDL.value,
             "tool_options": [
                 {"group": "--vcd", "argument": "func.vcd"}
             ]

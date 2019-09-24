@@ -2,6 +2,8 @@ import unittest
 
 import requests
 
+from triel.server.manager.models.master_enuml import SimulatorNames
+from triel.server.manager.models.test_enum import FileTypeChoices
 from triel_test.resources_test import resource_test_path
 from triel_test.test_master_view import TrielTestCase, TRIEL_URL
 
@@ -15,12 +17,12 @@ class Edalize(TrielTestCase):
             "working_dir": resource_test_path("scripts/cocotb/simple"),
             "files": [
                 {"name": resource_test_path("hdl/adder.vhd"),
-                 "file_type": "vhdlSource-2008"},
+                 "file_type": FileTypeChoices.vhdl08.value},
                 {"name": resource_test_path("hdl/adder_tb.vhd"),
-                 "file_type": "vhdlSource-2008"}
+                 "file_type": FileTypeChoices.vhdl08.value}
             ],
             "top_level": "adder_tb",
-            "tool": "ghdl",
+            "tool": SimulatorNames.GHDL.value,
             "tool_options": [
                 {"group": "analyze_options", "argument": "-fexplicit"},
                 {"group": "analyze_options", "argument": "--no-vital-checks"},

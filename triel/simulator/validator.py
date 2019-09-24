@@ -2,7 +2,7 @@ import subprocess
 
 from rest_framework import serializers
 
-from triel.server.manager.models.master_model import SimulatorNames
+from triel.server.manager.models.master_enuml import SimulatorNames
 
 EXE = {
     SimulatorNames.GHDL.value: 'ghdl',
