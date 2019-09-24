@@ -36,8 +36,7 @@ setup(
     install_requires=[
         "djangorestframework < 4",
         "django < 3",
-        "cocotb-test < 1",
-        "cocotb < 2",
+        "cocotb_test < 1",
         "edalize < 1"
     ],
 )
