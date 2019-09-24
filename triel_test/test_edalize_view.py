@@ -2,6 +2,7 @@ import unittest
 
 import requests
 
+from triel_test.resources_test import resource_test_path
 from triel_test.test_master_view import TrielTestCase, TRIEL_URL
 
 TEST_URL = TRIEL_URL + 'tests/'
@@ -11,11 +12,11 @@ class Edalize(TrielTestCase):
     def test_ghdl(self):
         data = {
             "name": "test_ghdl",
-            "working_dir": "/mnt/data/Programacion/teros/triel/triel_test/scripts/cocotb/simple",
+            "working_dir": resource_test_path("scripts/cocotb/simple"),
             "files": [
-                {"name": "/mnt/data/Programacion/teros/triel/triel_test/hdl/adder.vhd",
+                {"name": resource_test_path("hdl/adder.vhd"),
                  "file_type": "vhdlSource-2008"},
-                {"name": "/mnt/data/Programacion/teros/triel/triel_test/hdl/adder_tb.vhd",
+                {"name": resource_test_path("hdl/adder_tb.vhd"),
                  "file_type": "vhdlSource-2008"}
             ],
             "top_level": "adder_tb",
