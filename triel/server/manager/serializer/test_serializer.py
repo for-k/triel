@@ -95,7 +95,7 @@ class TestSerializer(serializers.ModelSerializer):
         if tool not in (simulator.name for simulator in attrs['suite'].simulators.all()):
             raise ValidationError(f"Invalid simulator {tool} for suite {attrs['suite'].name}")
 
-        if attrs['suite'].name in (SuiteNames.EDALIZE.value, SuiteNames.COCOTB.value) and 'name' not in attrs.keys():
+        if attrs['suite'].name == SuiteNames.EDALIZE.value and 'name' not in attrs.keys():
             raise ValidationError(f"Field name required for {attrs['suite'].name}")
 
         if attrs['suite'].name == SuiteNames.EDALIZE.value:

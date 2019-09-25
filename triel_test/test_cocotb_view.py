@@ -23,9 +23,6 @@ class Coco(TrielTestCase):
             ],
             "top_level": "adder",
             "tool": SimulatorNames.ICARUS.value,
-            "tool_options": [
-                {"group": "--vcd", "argument": "func.vcd"}
-            ]
         }
         response = requests.post(COCO_URL, json=data)
         self.print_response(response)
