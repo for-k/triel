@@ -42,6 +42,13 @@
             ],
             "version": "==0.0.3"
         },
+        "colorama": {
+            "hashes": [
+                "sha256:05eed71e2e327246ad6b38c540c4a3117230b19679b875190486ddd2d721422d",
+                "sha256:f8ac84de7840f5b9c4e3347b3c1eaa50f7e49c2b07596221daec5edaabbd7c48"
+            ],
+            "version": "==0.4.1"
+        },
         "django": {
             "hashes": [
                 "sha256:148a4a2d1a85b23883b0a4e99ab7718f518a83675e4485e44dc0c1d36988c5fa",
@@ -176,6 +183,12 @@
         "triel": {
             "editable": true,
             "path": "."
+        },
+        "vunit-hdl": {
+            "hashes": [
+                "sha256:d5b6e56ce41f11d01cdffdf16471a2d3cecf4ffb0bb592e09aa93f67b6351e85"
+            ],
+            "version": "==4.0.8"
         },
         "wcwidth": {
             "hashes": [

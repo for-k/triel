@@ -1,4 +1,5 @@
 import os
+import shutil
 import sys
 from runpy import run_path
 
@@ -12,11 +13,21 @@ def launch_vunit_test(test: Test):
         SimulatorNames.GHDL.value: "ghdl",
     }.get(test.tool.name)
 
+    clean_build(test.working_dir)
+
     try:
-        sys.argv = ['', "--xunit-xml-format", "jenkins", "-x", "out.xml", "--gtkwave-fmt", "vcd"]
+        sys.argv = ['', "--xunit-xml-format", "jenkins", "-x", os.path.join("vunit_out", "out.xml"), "--gtkwave-fmt",
+                    "vcd"]
         os.chdir(test.working_dir)
         run_path(test.files.all()[0].name, run_name="__main__")
     except SystemExit:
         pass
     finally:
-        test.result = XmlParser().vunit_xml(os.path.join(test.working_dir, 'out.xml'), test.tool.name, test.working_dir)
+        test.result = XmlParser().vunit_xml(os.path.join(test.working_dir, os.path.join("vunit_out", "out.xml")),
+                                            test.tool.name,
+                                            test.working_dir)
+
+
+def clean_build(wd):
+    if os.path.isdir(wd):
+        shutil.rmtree(os.path.join(wd, "vunit_out"))

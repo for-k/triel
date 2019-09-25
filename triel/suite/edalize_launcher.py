@@ -3,8 +3,8 @@ import shutil
 
 import edalize
 
-from triel.server.manager.models.test_model import Test
 from triel.server.manager.models.master_enuml import SimulatorNames
+from triel.server.manager.models.test_model import Test
 
 
 def validate_tool_options(tool, tool_options):
@@ -84,8 +84,7 @@ def launch_edalize_test(test: Test):
     }.get(test.tool.name)
 
     work_root = os.path.join(test.working_dir, 'build')
-    if os.path.isdir(work_root):
-        shutil.rmtree(work_root)
+    clean_build(work_root)
 
     files = []
     for src in test.files.all():
@@ -107,3 +106,8 @@ def launch_edalize_test(test: Test):
     backend.configure(configure_args)
     backend.build()
     backend.run(run_args)
+
+
+def clean_build(build_dir):
+    if os.path.isdir(build_dir):
+        shutil.rmtree(build_dir)

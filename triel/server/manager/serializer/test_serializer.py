@@ -5,7 +5,7 @@ from rest_framework.exceptions import ValidationError
 from rest_framework.fields import JSONField
 from rest_framework.relations import SlugRelatedField
 
-from triel.server.manager.models.master_enuml import SuiteNames
+from triel.server.manager.models.master_enuml import SuiteNames, SimulatorNames
 from triel.server.manager.models.master_model import Simulator, Suite
 from triel.server.manager.models.test_enum import ParameterDataTypeChoices, FileTypeChoices
 from triel.server.manager.models.test_model import File, Test, \
@@ -132,6 +132,8 @@ class TestSerializer(serializers.ModelSerializer):
         test.parameters.set([search_before_create(ParameterValue, parameter) for parameter in
                              parameters])
 
+        add_waveform(test)
+
         {
             SuiteNames.EDALIZE.value: launch_edalize_test,
             SuiteNames.COCOTB.value: launch_cocotb_test,
@@ -141,3 +143,15 @@ class TestSerializer(serializers.ModelSerializer):
         test.save()
 
         return test
+
+
+def add_waveform(test: Test):
+    if test.suite.name == SuiteNames.COCOTB.value:
+        if test.tool.name == SimulatorNames.GHDL.value:
+            test.tool_options.add(search_before_create(SimulatorArgument, {"group": "--vcd", "argument": "dump.vcd"}))
+    elif test.suite.name == SuiteNames.EDALIZE.value:
+        if test.tool.name == SimulatorNames.GHDL.value:
+            test.tool_options.add(
+                search_before_create(SimulatorArgument, {"group": "run_options", "argument": "--vcd=func.vcd"}))
+        elif test.tool.name == SimulatorNames.ICARUS.value:
+            pass

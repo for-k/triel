@@ -1,10 +1,11 @@
 import os
+import shutil
 
 from cocotb_test.run import run
 
-from triel.server.manager.models.test_model import Test
-from triel.server.manager.models.test_enum import FileTypeChoices
 from triel.server.manager.models.master_enuml import SimulatorNames
+from triel.server.manager.models.test_enum import FileTypeChoices
+from triel.server.manager.models.test_model import Test
 from triel.suite.xml_parser import XmlParser
 
 
@@ -31,6 +32,8 @@ def separate_src_and_modules(files):
 
 
 def launch_cocotb_test(test: Test):
+    clean_build()
+
     os.environ["SIM"], language, source_arg = {
         SimulatorNames.GHDL.value: ("ghdl", "vhdl", "vhdl_sources"),
         SimulatorNames.ICARUS.value: ("icarus", "verilog", "verilog_sources"),
@@ -59,6 +62,15 @@ def launch_cocotb_test(test: Test):
         "simulation_args": simulator_args
     }
 
-    sim_result = run(**args)
+    try:
+        sim_result = run(**args)
+    except Exception:
+        sim_result = os.path.join(os.getcwd(), "sim_build", "result.xml")
 
-    test.result = XmlParser().coco_xml(sim_result, os.path.join(sim_result.rsplit(os.sep, 1)[0], "func.vcd"))
+    test.result = XmlParser().coco_xml(sim_result, os.path.join(sim_result.rsplit(os.sep, 1)[0], "dump.vcd"))
+
+
+def clean_build():
+    build_dir = os.path.join(os.getcwd(), "sim_build")
+    if os.path.isdir(build_dir):
+        shutil.rmtree(build_dir)

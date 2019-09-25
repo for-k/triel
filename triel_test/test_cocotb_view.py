@@ -39,10 +39,7 @@ class Coco(TrielTestCase):
                  "file_type": FileTypeChoices.vhdl08.value},
             ],
             "top_level": "adder",
-            "tool": SimulatorNames.GHDL.value,
-            "tool_options": [
-                {"group": "--vcd", "argument": "func.vcd"}
-            ]
+            "tool": SimulatorNames.GHDL.value
         }
         response = requests.post(COCO_URL, json=data)
         self.print_response(response)
