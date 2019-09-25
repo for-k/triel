@@ -1,11 +1,9 @@
-import json
 import os.path
 import xml.etree.ElementTree as et
 
 
 class XmlParser:
     def __init__(self):
-        self.json_out = ""
         self.data = {}
 
     def parse(self, xml_file):
@@ -30,8 +28,7 @@ class XmlParser:
                                       "waveform": wave_file})
         self.data["summary"] = {"test": num_test, "failures": num_fail, "errors": "--", "skipped": "--"}
 
-        self.json_out = json.dumps(self.data)
-        return self.json_out
+        return self.data
 
     def vunit_xml(self, xml_file, simulator, vunit_out_path):
         base = self.parse(xml_file)
@@ -52,5 +49,4 @@ class XmlParser:
                      "test": "Failed" if cases.findall('failure') else " OK", "stdout": std.text,
                      "waveform": test_map[cases.attrib["classname"] + "." + cases.attrib["name"]]})
 
-        self.json_out = json.dumps(self.data)
-        return self.json_out
+        return self.data

@@ -2,6 +2,7 @@ import os
 
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
+from rest_framework.fields import JSONField
 from rest_framework.relations import SlugRelatedField
 
 from triel.server.manager.models.master_enuml import SuiteNames
@@ -74,6 +75,7 @@ class TestSerializer(serializers.ModelSerializer):
     suite = SlugRelatedField(many=False, queryset=Suite.objects.all(), slug_field='name', required=False)
     tool = SlugRelatedField(many=False, queryset=Simulator.objects.all(), slug_field='name', required=False)
     tool_options = SimulatorArgumentSerializer(many=True, required=False)
+    result = JSONField(required=False)
 
     class Meta:
         model = Test
