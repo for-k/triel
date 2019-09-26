@@ -8,6 +8,10 @@ from triel.server.manager.models.test_enum import FileTypeChoices
 from triel.server.manager.models.test_model import Test
 from triel.suite.xml_parser import XmlParser
 
+BUILD = "sim_build"
+RESULT_EXT = ".xml"
+WAVE_EXT = ".vcd"
+
 
 def generate_relative_imports(wd, filepath):
     if wd in filepath:
@@ -32,7 +36,9 @@ def separate_src_and_modules(files):
 
 
 def launch_cocotb_test(test: Test):
-    clean_build()
+    build_dir = os.path.join(os.getcwd(), BUILD)
+    if os.path.isdir(build_dir):
+        shutil.rmtree(build_dir)
 
     os.environ["SIM"], language, source_arg = {
         SimulatorNames.GHDL.value: ("ghdl", "vhdl", "vhdl_sources"),
@@ -65,22 +71,16 @@ def launch_cocotb_test(test: Test):
     try:
         sim_result = run(**args)
     except Exception:
-        sim_result = os.path.join(os.getcwd(), "sim_build", "results.xml")
+        sim_result = search_for_file_by_ext(sim_result, RESULT_EXT)
 
-    test.result = XmlParser().coco_xml(sim_result, search_for_wave_files(sim_result.rsplit(os.sep, 1)[0]))
+    test.result = XmlParser().coco_xml(sim_result, search_for_file_by_ext(build_dir, WAVE_EXT))
 
 
-def search_for_wave_files(folder):
+def search_for_file_by_ext(folder: str, ext: str):
     for root, dirs, files in os.walk(folder):
         for file in files:
-            if file.endswith('.vcd'):
+            if file.endswith(ext):
                 return os.path.join(folder, file)
         for dir in dirs:
-            search_for_wave_files(os.path.join(folder, dir))
+            search_for_file_by_ext(os.path.join(folder, dir))
     return ""
-
-
-def clean_build():
-    build_dir = os.path.join(os.getcwd(), "sim_build")
-    if os.path.isdir(build_dir):
-        shutil.rmtree(build_dir)
