@@ -14,7 +14,7 @@ class Edalize(TrielTestCase):
     def test_ghdl(self):
         data = {
             "name": "test_ghdl",
-            "working_dir": resource_test_path("scripts/cocotb/simple"),
+            "working_dir": resource_test_path("hdl"),
             "files": [
                 {"name": resource_test_path("hdl/adder.vhd"),
                  "file_type": FileTypeChoices.vhdl08.value},
@@ -29,6 +29,23 @@ class Edalize(TrielTestCase):
                 {"group": "analyze_options", "argument": "-frelaxed-rules"},
                 {"group": "run_options", "argument": "--disp-time"}
             ]
+        }
+        response = requests.post(TEST_URL, json=data)
+        self.print_response(response)
+        assert response.status_code == 201
+
+    def test_icarus(self):
+        data = {
+            "name": "test_icarus",
+            "working_dir": resource_test_path("hdl"),
+            "files": [
+                {"name": resource_test_path("hdl/basic_and.v"),
+                 "file_type": FileTypeChoices.vlog05.value},
+                {"name": resource_test_path("hdl/basic_and_tb.v"),
+                 "file_type": FileTypeChoices.vlog05.value}
+            ],
+            "top_level": "basic_and_tb",
+            "tool": SimulatorNames.ICARUS.value,
         }
         response = requests.post(TEST_URL, json=data)
         self.print_response(response)

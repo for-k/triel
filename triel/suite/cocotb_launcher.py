@@ -67,7 +67,17 @@ def launch_cocotb_test(test: Test):
     except Exception:
         sim_result = os.path.join(os.getcwd(), "sim_build", "results.xml")
 
-    test.result = XmlParser().coco_xml(sim_result, os.path.join(sim_result.rsplit(os.sep, 1)[0], "dump.vcd"))
+    test.result = XmlParser().coco_xml(sim_result, search_for_wave_files(sim_result.rsplit(os.sep, 1)[0]))
+
+
+def search_for_wave_files(folder):
+    for root, dirs, files in os.walk(folder):
+        for file in files:
+            if file.endswith('.vcd'):
+                return os.path.join(folder, file)
+        for dir in dirs:
+            search_for_wave_files(os.path.join(folder, dir))
+    return ""
 
 
 def clean_build():

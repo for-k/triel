@@ -110,17 +110,28 @@ def launch_edalize_test(test: Test):
     )
     os.makedirs(work_root)
 
-    with patch('edalize.edatool.subprocess.check_call') as cc:
+    with patch('edalize.edatool.subprocess.check_call') as check_call_mock:
         try:
-            cc.side_effect = new_check_call
+            check_call_mock.side_effect = new_check_call
+            out.seek(0)
             backend.configure(configure_args)
             backend.build()
             backend.run(run_args)
         except:
             pass
 
-    test.result = XmlParser().edalize_xml(out.getvalue(), "")
+    test.result = XmlParser().edalize_xml(out.getvalue(), search_for_wave_files(work_root))
     out.truncate(0)
+
+
+def search_for_wave_files(folder):
+    for root, dirs, files in os.walk(folder):
+        for file in files:
+            if file.endswith('.vcd'):
+                return os.path.join(folder, file)
+        for dir in dirs:
+            search_for_wave_files(os.path.join(folder, dir))
+    return ""
 
 
 def new_check_call(*popenargs, **kwargs):
