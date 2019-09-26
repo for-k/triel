@@ -65,7 +65,7 @@ def launch_cocotb_test(test: Test):
     try:
         sim_result = run(**args)
     except Exception:
-        sim_result = os.path.join(os.getcwd(), "sim_build", "result.xml")
+        sim_result = os.path.join(os.getcwd(), "sim_build", "results.xml")
 
     test.result = XmlParser().coco_xml(sim_result, os.path.join(sim_result.rsplit(os.sep, 1)[0], "dump.vcd"))
 
