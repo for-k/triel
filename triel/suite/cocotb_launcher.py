@@ -71,7 +71,7 @@ def launch_cocotb_test(test: Test):
     try:
         sim_result = run(**args)
     except Exception:
-        sim_result = search_for_file_by_ext(sim_result, RESULT_EXT)
+        sim_result = search_for_file_by_ext(build_dir, RESULT_EXT)
 
     test.result = XmlParser().coco_xml(sim_result, search_for_file_by_ext(build_dir, WAVE_EXT))
 
@@ -82,5 +82,5 @@ def search_for_file_by_ext(folder: str, ext: str):
             if file.endswith(ext):
                 return os.path.join(folder, file)
         for dir in dirs:
-            search_for_file_by_ext(os.path.join(folder, dir))
+            search_for_file_by_ext(os.path.join(folder, dir), ext)
     return ""
