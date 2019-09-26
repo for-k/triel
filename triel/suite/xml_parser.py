@@ -31,10 +31,11 @@ class XmlParser:
         return self.data
 
     def edalize_xml(self, stdout_value, wave_file):
-        self.data["summary"] = {"test": 1, "failures": "", "errors": "", "skipped": ""}
+        self.data["summary"] = {"test": 1, "failures": "---", "errors": "---", "skipped": "--"}
         self.data["test"] = []
         self.data["test"].append(
-            {"classname": "", "name": "", "time": "", "test": "", "stdout": stdout_value, "waveform": wave_file})
+            {"classname": "Edalize", "name": "---", "time": "---", "test": "---", "stdout": stdout_value,
+             "waveform": wave_file})
         return self.data
 
     def vunit_xml(self, xml_file, simulator, vunit_out_path):
