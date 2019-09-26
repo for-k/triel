@@ -152,6 +152,6 @@ def add_waveform(test: Test):
     elif test.suite.name == SuiteNames.EDALIZE.value:
         if test.tool.name == SimulatorNames.GHDL.value:
             test.tool_options.add(
-                search_before_create(SimulatorArgument, {"group": "run_options", "argument": "--vcd=func.vcd"}))
+                search_before_create(SimulatorArgument, {"group": "run_options", "argument": "--vcd=dump.vcd"}))
         elif test.tool.name == SimulatorNames.ICARUS.value:
             pass

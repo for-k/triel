@@ -1,10 +1,16 @@
 import os
 import shutil
+import subprocess
+from io import StringIO
+from unittest.mock import patch
 
 import edalize
 
 from triel.server.manager.models.master_enuml import SimulatorNames
 from triel.server.manager.models.test_model import Test
+from triel.suite.xml_parser import XmlParser
+
+out = StringIO()
 
 
 def validate_tool_options(tool, tool_options):
@@ -103,9 +109,22 @@ def launch_edalize_test(test: Test):
         }, work_root=work_root
     )
     os.makedirs(work_root)
-    backend.configure(configure_args)
-    backend.build()
-    backend.run(run_args)
+
+    with patch('edalize.edatool.subprocess.check_call') as cc:
+        try:
+            cc.side_effect = new_check_call
+            backend.configure(configure_args)
+            backend.build()
+            backend.run(run_args)
+        except:
+            pass
+
+    test.result = XmlParser().edalize_xml(out.getvalue(), "")
+    out.truncate(0)
+
+
+def new_check_call(*popenargs, **kwargs):
+    out.write(subprocess.check_output(*popenargs, **kwargs).decode())
 
 
 def clean_build(build_dir):
