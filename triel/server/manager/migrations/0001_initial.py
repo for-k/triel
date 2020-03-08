@@ -19,7 +19,7 @@ class Migration(migrations.Migration):
                 ('file_type', models.CharField(blank=True, choices=[('QIP', 'qip'), ('UCF', 'ucf'),
                                                                     ('verilogSource-2005', 'vlog05'),
                                                                     ('vhdlSource-2008', 'vhdl08'), ('xci', 'xci'),
-                                                                    ('xdc', 'xdc'), ('py', 'py')], max_length=8)),
+                                                                    ('xdc', 'xdc'), ('py', 'py')], max_length=255)),
                 ('is_include_file', models.BooleanField(blank=True, default=False, null=True)),
                 ('logical_name', models.CharField(blank=True, max_length=255, null=True)),
             ],

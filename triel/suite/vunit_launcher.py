@@ -13,7 +13,7 @@ def launch_vunit_test(test: Test):
         SimulatorNames.GHDL.value: "ghdl",
     }.get(test.tool.name)
 
-    clean_build(os.path.join(test.working_dir, "vunit_out"))
+    # clean_build(os.path.join(test.working_dir, "vunit_out"))
 
     try:
         sys.argv = ['', "--xunit-xml-format", "jenkins", "-x", os.path.join("vunit_out", "out.xml"), "--gtkwave-fmt",

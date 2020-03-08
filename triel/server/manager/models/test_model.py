@@ -7,7 +7,7 @@ from triel.server.manager.models.test_enum import FileTypeChoices, ParameterType
 
 class File(models.Model):
     name = models.CharField(unique=True, max_length=512)
-    file_type = models.CharField(max_length=8, blank=True, choices=FileTypeChoices.choices())
+    file_type = models.CharField(max_length=255, blank=True, choices=FileTypeChoices.choices())
     is_include_file = models.BooleanField(default=False, blank=True, null=True)
     logical_name = models.CharField(max_length=255, null=True, blank=True)
 
