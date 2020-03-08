@@ -7,7 +7,7 @@ verify_ssl = true
 triel = {editable = true,path = "."}
 
 [requires]
-python_version = "3.7"
+python_version = "3.6"
 
 [dev-packages]
 requests = "*"

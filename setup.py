@@ -43,7 +43,7 @@ setup(
     include_package_data=True,
     install_requires=[
         "djangorestframework < 4",
-        "django >=2.2.8, < 3",
+        "django >=2.2.10, < 3",
         "cocotb_test < 1",
         "edalize < 1",
         "vunit_hdl < 5"
