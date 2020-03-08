@@ -31,11 +31,19 @@ setup(
         'Programming Language :: Python :: 3.7',
     ],
     keywords='teros fpga',
+
+    python_requires=">=3.6",
+    entry_points={
+        'console_scripts': [
+            'triel = triel.__main__:main',
+        ],
+    },
+
     packages=find_packages(exclude=["*_test", "*_tests"]),
     include_package_data=True,
     install_requires=[
         "djangorestframework < 4",
-        "django < 3",
+        "django >=2.2.8, < 3",
         "cocotb_test < 1",
         "edalize < 1",
         "vunit_hdl < 5"

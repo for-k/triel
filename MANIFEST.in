@@ -1,0 +1,2 @@
+recursive-include triel/resources *
+include triel/db.sqlite3
