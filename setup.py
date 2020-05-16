@@ -47,7 +47,6 @@ setup(
         "django >= 3.0.3",
         "cocotb_test < 1",
         "edalize < 1",
-        #"edalize == 0.1.7",
         # "vunit_hdl < 5"
     ],
 )
