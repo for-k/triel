@@ -42,10 +42,12 @@ setup(
     packages=find_packages(exclude=["*_test", "*_tests"]),
     include_package_data=True,
     install_requires=[
+        "pytest >= 5.3.1",
         "djangorestframework < 4",
         "django >= 3.0.3",
         "cocotb_test < 1",
         "edalize < 1",
+        #"edalize == 0.1.7",
         # "vunit_hdl < 5"
     ],
 )
