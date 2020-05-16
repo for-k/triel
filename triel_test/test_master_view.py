@@ -24,6 +24,7 @@
 """
 
 import unittest
+from json.decoder import JSONDecodeError
 
 import requests
 
@@ -40,7 +41,10 @@ class TrielTestCase(unittest.TestCase):
     @staticmethod
     def print_response(response):
         print(response.status_code)
-        print(response.json())
+        try:
+            print(response.json())
+        except JSONDecodeError:
+            print(response.text)
 
 
 class LanguageCase(TrielTestCase):
