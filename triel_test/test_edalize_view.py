@@ -30,16 +30,23 @@ import requests
 from triel.server.manager.models.master_enuml import SimulatorNames
 from triel.server.manager.models.test_enum import FileTypeChoices
 from triel_test.resources_test import resource_test_path
-from triel_test.test_master_view import TrielTestCase, TRIEL_URL
-
-TEST_URL = TRIEL_URL + 'tests/'
+from triel_test.test_master_view import TrielTestCase, TEST_URL, CASE_URL
 
 
 class Edalize(TrielTestCase):
     def test_ghdl(self):
+        # Case
         data = {
-            "name": "test_ghdl",
             "working_dir": resource_test_path("hdl"),
+        }
+        response = requests.post(CASE_URL, json=data)
+        self.print_response(response)
+        assert response.status_code == 201
+
+        # Test
+        data = {
+            "case": response.json()['id'],
+            "name": "test_ghdl",
             "files": [
                 {"name": resource_test_path("hdl/adder.vhd"),
                  "file_type": FileTypeChoices.vhdl08.value},
@@ -60,9 +67,18 @@ class Edalize(TrielTestCase):
         assert response.status_code == 201
 
     def test_icarus(self):
+        # Case
         data = {
-            "name": "test_icarus",
             "working_dir": resource_test_path("hdl"),
+        }
+        response = requests.post(CASE_URL, json=data)
+        self.print_response(response)
+        assert response.status_code == 201
+
+        # Test
+        data = {
+            "case": response.json()['id'],
+            "name": "test_icarus",
             "files": [
                 {"name": resource_test_path("hdl/basic_and.v"),
                  "file_type": FileTypeChoices.vlog05.value},

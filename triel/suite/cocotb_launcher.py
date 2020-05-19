@@ -22,15 +22,16 @@
  along with Colibri.  If not, see <https://www.gnu.org/licenses/>.
 
 """
-
+import importlib
 import os
 import shutil
 
+import cocotb
 from cocotb_test.run import run
 
 from triel.server.manager.models.master_enuml import SimulatorNames
 from triel.server.manager.models.test_enum import FileTypeChoices
-from triel.server.manager.models.test_model import Test
+from triel.server.manager.models.test_model import Case, Test
 from triel.suite.xml_parser import XmlParser
 
 BUILD = "sim_build"
@@ -60,6 +61,31 @@ def separate_src_and_modules(files):
     return src_list, module_list
 
 
+def list_cocotb_test(case: Case):
+    file_path = os.path.join(case.working_dir, case.file)
+    spec = importlib.util.spec_from_file_location(os.path.splitext(file_path)[0].split('/')[-1], file_path)
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+
+    case.result = []
+    for test in dir(mod):
+        if isinstance(getattr(mod, test), cocotb.coroutine):
+            with open(file_path) as fd:
+                offset = 0
+                line_number = getattr(mod, test)._func.__code__.co_firstlineno - 1
+                for line in fd:
+                    line_number -= 1
+                    offset += len(line)
+                    if line_number == 0:
+                        break
+
+            case.result.append({
+                "attributes": {},
+                "location": {'file_name': file_path, 'length': len(test), "offset": offset},
+                "name": test
+            })
+
+
 def launch_cocotb_test(test: Test):
     build_dir = os.path.join(os.getcwd(), BUILD)
     if os.path.isdir(build_dir):
@@ -71,10 +97,12 @@ def launch_cocotb_test(test: Test):
     }.get(test.tool.name)
 
     src_list, module_list = separate_src_and_modules(test.files.all())
+    module_list.append(os.path.join(test.case.working_dir, test.case.file))
+    module_list = list(set(module_list))
 
     modules = ""
     for module in module_list:
-        modules += generate_relative_imports(test.working_dir, module) + ','
+        modules += generate_relative_imports(test.case.working_dir, module) + ','
     modules = modules[:-1]
 
     simulator_args = []
@@ -89,8 +117,9 @@ def launch_cocotb_test(test: Test):
         "toplevel": test.top_level,
         "module": modules,
         "toplevel_lang": language,
-        "run_dir": test.working_dir,
-        "simulation_args": simulator_args
+        "run_dir": test.case.working_dir,
+        "simulation_args": simulator_args,
+        "testcase": test.name,
     }
 
     try:

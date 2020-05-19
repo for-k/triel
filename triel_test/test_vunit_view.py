@@ -27,24 +27,29 @@ import unittest
 
 import requests
 
-from triel.server.manager.models.master_enuml import SimulatorNames, SuiteNames
-from triel.server.manager.models.test_enum import FileTypeChoices
+from triel.server.manager.models.master_enuml import SuiteNames, SimulatorNames
 from triel_test.resources_test import resource_test_path
-from triel_test.test_master_view import TrielTestCase, TRIEL_URL
-
-TEST_URL = TRIEL_URL + 'tests/'
+from triel_test.test_master_view import TrielTestCase, CASE_URL, TEST_URL
 
 
 class VUnit(TrielTestCase):
     def test_ghdl(self):
+        # Case
         data = {
             "suite": SuiteNames.VUNIT.value,
+            "file": resource_test_path("vunit/run.py"),
             "working_dir": resource_test_path("vunit"),
-            "files": [
-                {"name": resource_test_path("vunit/run.py"),
-                 "file_type": FileTypeChoices.py.value},
-            ],
+        }
+        response = requests.post(CASE_URL, json=data)
+        self.print_response(response)
+        assert response.status_code == 201
+
+        # Test
+        data = {
+            "case": response.json()['id'],
             "tool": SimulatorNames.GHDL.value,
+            "files": [
+            ]
         }
         response = requests.post(TEST_URL, json=data)
         self.print_response(response)

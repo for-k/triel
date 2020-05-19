@@ -32,6 +32,8 @@ TRIEL_URL = "http://localhost:8000/"
 LANGUAGE_URL = TRIEL_URL + 'languages/'
 SIMULATOR_URL = TRIEL_URL + 'simulators/'
 SUITE_URL = TRIEL_URL + 'suites/'
+CASE_URL = TRIEL_URL + 'cases/'
+TEST_URL = TRIEL_URL + 'tests/'
 
 
 class TrielTestCase(unittest.TestCase):

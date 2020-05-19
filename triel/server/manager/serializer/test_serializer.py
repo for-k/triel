@@ -31,13 +31,14 @@ from rest_framework.fields import JSONField
 from rest_framework.relations import SlugRelatedField
 
 from triel.server.manager.models.master_enuml import SuiteNames, SimulatorNames
-from triel.server.manager.models.master_model import Simulator, Suite
-from triel.server.manager.models.test_enum import ParameterDataTypeChoices, FileTypeChoices
-from triel.server.manager.models.test_model import File, Test, \
-    ParameterValue, SimulatorArgument
-from triel.suite.cocotb_launcher import launch_cocotb_test
-from triel.suite.edalize_launcher import validate_tool_options, validate_edalize_args, launch_edalize_test
-from triel.suite.vunit_launcher import launch_vunit_test
+from triel.server.manager.models.master_model import Suite, Simulator
+from triel.server.manager.models.test_enum import ParameterDataTypeChoices
+from triel.server.manager.models.test_model import File, Case, \
+    SimulatorArgument, Test, ParameterValue
+from triel.suite.cocotb_launcher import list_cocotb_test, launch_cocotb_test
+from triel.suite.edalize_launcher import list_edalize_test, validate_tool_options, validate_edalize_args, \
+    launch_edalize_test
+from triel.suite.vunit_launcher import list_vunit_test, launch_vunit_test
 
 
 def search_before_create(model, validated_data):
@@ -94,10 +95,50 @@ class SimulatorArgumentSerializer(serializers.ModelSerializer):
         validators = []
 
 
+class CaseSerializer(serializers.ModelSerializer):
+    suite = SlugRelatedField(many=False, queryset=Suite.objects.all(), slug_field='name', required=False)
+    result = JSONField(required=False)
+
+    class Meta:
+        model = Case
+        fields = '__all__'
+
+    def validate(self, attrs):
+        if 'suite' not in attrs.keys():
+            attrs['suite'] = Suite.objects.filter(name=SuiteNames.EDALIZE.value)[0]
+
+        if ('file' not in attrs.keys() or not attrs['file']) and attrs['suite'].name != SuiteNames.EDALIZE.value:
+            raise ValidationError(f"Field file required for {attrs['suite'].name}")
+
+        return super().validate(attrs)
+
+    @staticmethod
+    def validate_working_dir(wd):
+        if os.path.exists(wd):
+            return wd
+        else:
+            raise ValidationError("Invalid name")
+
+    def create(self, validated_data):
+        if not validated_data['working_dir'].endswith(os.sep):
+            validated_data['working_dir'] += os.sep
+
+        case = Case.objects.create(**validated_data)
+        {
+            SuiteNames.EDALIZE.value: list_edalize_test,
+            SuiteNames.COCOTB.value: list_cocotb_test,
+            SuiteNames.VUNIT.value: list_vunit_test,
+        }.get(validated_data['suite'].name)(case)
+
+        case.save()
+
+        return case
+
+
 class TestSerializer(serializers.ModelSerializer):
     files = FileSerializer(many=True)
     parameters = ParameterValueSerializer(many=True, required=False)
-    suite = SlugRelatedField(many=False, queryset=Suite.objects.all(), slug_field='name', required=False)
+    case = SlugRelatedField(many=False, queryset=Case.objects.all(), slug_field='id', required=True)
     tool = SlugRelatedField(many=False, queryset=Simulator.objects.all(), slug_field='name', required=False)
     tool_options = SimulatorArgumentSerializer(many=True, required=False)
     result = JSONField(required=False)
@@ -106,26 +147,18 @@ class TestSerializer(serializers.ModelSerializer):
         model = Test
         fields = '__all__'
 
-    def validate_working_dir(self, wd):
-        if os.path.exists(wd):
-            return wd
-        else:
-            raise ValidationError("Invalid name")
-
     def validate(self, attrs):
-        if 'suite' not in attrs.keys():
-            attrs['suite'] = Suite.objects.filter(name=SuiteNames.EDALIZE.value)[0]
 
         tool = attrs.get('tool', '')
         if tool:
             tool = tool.name
-        if tool not in (simulator.name for simulator in attrs['suite'].simulators.all()):
-            raise ValidationError(f"Invalid simulator {tool} for suite {attrs['suite'].name}")
+        if tool not in (simulator.name for simulator in attrs['case'].suite.simulators.all()):
+            raise ValidationError(f"Invalid simulator {tool} for suite {attrs['case'].suite.name}")
 
-        if attrs['suite'].name == SuiteNames.EDALIZE.value and 'name' not in attrs.keys():
-            raise ValidationError(f"Field name required for {attrs['suite'].name}")
+        if attrs['case'].suite.name == SuiteNames.EDALIZE.value and 'name' not in attrs.keys():
+            raise ValidationError(f"Field name required for {attrs['case'].suite.name}")
 
-        if attrs['suite'].name == SuiteNames.EDALIZE.value:
+        if attrs['case'].suite.name == SuiteNames.EDALIZE.value:
             if 'tool_options' in attrs.keys() and \
                     not validate_tool_options(attrs['tool'].name, attrs['tool_options']):
                 raise ValidationError(f"Invalid tool options group for tool {attrs['tool']}")
@@ -133,18 +166,13 @@ class TestSerializer(serializers.ModelSerializer):
                     not validate_edalize_args(attrs['tool'].name, attrs['parameters'].parameter):
                 raise ValidationError(f"Invalid parameter type for tool {attrs['tool']}")
 
-        if attrs['suite'].name == SuiteNames.VUNIT.value:
-            if len(attrs['files']) != 1:
-                raise ValidationError(f"Only one file allowed for {attrs['suite'].name} ")
-            elif attrs['files'][0]['file_type'] != FileTypeChoices.py.value:
-                raise ValidationError("Invalid file type")
+        if attrs['case'].suite.name == SuiteNames.VUNIT.value:
+            if "files" in attrs.keys() and len(attrs['files']) != 0:
+                raise ValidationError(f"Only one file allowed for {attrs['case'].suite.name} ")
 
         return super(TestSerializer, self).validate(attrs)
 
     def create(self, validated_data):
-
-        if not validated_data['working_dir'].endswith(os.sep):
-            validated_data['working_dir'] += os.sep
 
         file_list = validated_data.pop('files', ())
         tool_options_list = validated_data.pop('tool_options', ())
@@ -163,7 +191,7 @@ class TestSerializer(serializers.ModelSerializer):
             SuiteNames.EDALIZE.value: launch_edalize_test,
             SuiteNames.COCOTB.value: launch_cocotb_test,
             SuiteNames.VUNIT.value: launch_vunit_test,
-        }.get(validated_data['suite'].name)(test)
+        }.get(validated_data['case'].suite.name)(test)
 
         test.save()
 
@@ -172,8 +200,8 @@ class TestSerializer(serializers.ModelSerializer):
 
 def add_waveform(test: Test):
     if test.tool.name == SimulatorNames.GHDL.value:
-        if test.suite.name == SuiteNames.COCOTB.value:
+        if test.case.suite.name == SuiteNames.COCOTB.value:
             test.tool_options.add(search_before_create(SimulatorArgument, {"group": "--vcd", "argument": "dump.vcd"}))
-        elif test.suite.name == SuiteNames.EDALIZE.value:
+        elif test.case.suite.name == SuiteNames.EDALIZE.value:
             test.tool_options.add(
                 search_before_create(SimulatorArgument, {"group": "run_options", "argument": "--vcd=dump.vcd"}))

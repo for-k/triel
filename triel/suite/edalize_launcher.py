@@ -32,7 +32,7 @@ from unittest.mock import patch
 import edalize
 
 from triel.server.manager.models.master_enuml import SimulatorNames
-from triel.server.manager.models.test_model import Test
+from triel.server.manager.models.test_model import Case, Test
 from triel.suite.xml_parser import XmlParser
 
 out = StringIO()
@@ -108,13 +108,17 @@ def parse_tool_options(tool_options):
     return tool_options_dict
 
 
+def list_edalize_test(case: Case):
+    pass
+
+
 def launch_edalize_test(test: Test):
     tool = {
         SimulatorNames.GHDL.value: "ghdl",
         SimulatorNames.ICARUS.value: "icarus",
     }.get(test.tool.name)
 
-    work_root = os.path.join(test.working_dir, 'build')
+    work_root = os.path.join(test.case.working_dir, 'build')
     clean_build(work_root)
 
     files = []

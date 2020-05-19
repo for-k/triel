@@ -2,8 +2,8 @@
 import subprocess
 
 from vunit import VUnit
-from vunit.ghdl_interface import GHDLInterface
-from vunit.simulator_factory import SIMULATOR_FACTORY
+from vunit.sim_if.factory import SIMULATOR_FACTORY
+from vunit.sim_if.ghdl import GHDLInterface
 
 ##############################################################################
 

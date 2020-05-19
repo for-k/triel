@@ -22,15 +22,30 @@
  along with Colibri.  If not, see <https://www.gnu.org/licenses/>.
 
 """
-
+import json
 import os
 import shutil
 import sys
 from runpy import run_path
 
 from triel.server.manager.models.master_enuml import SimulatorNames
-from triel.server.manager.models.test_model import Test
+from triel.server.manager.models.test_model import Case, Test
 from triel.suite.xml_parser import XmlParser
+
+
+def list_vunit_test(case: Case):
+    file_path = os.path.join(case.working_dir, case.file)
+    list_file = os.path.join(case.working_dir, "vunit_out", "list.json")
+
+    try:
+        sys.argv = ['', "--list", "--export-json", list_file]
+        os.chdir(case.working_dir)
+        run_path(file_path, run_name="__main__")
+    except SystemExit:
+        pass
+    finally:
+        with open(list_file) as fd:
+            case.result = json.load(fd)['tests']
 
 
 def launch_vunit_test(test: Test):
@@ -43,14 +58,14 @@ def launch_vunit_test(test: Test):
     try:
         sys.argv = ['', "--xunit-xml-format", "jenkins", "-x", os.path.join("vunit_out", "out.xml"), "--gtkwave-fmt",
                     "vcd"]
-        os.chdir(test.working_dir)
-        run_path(test.files.all()[0].name, run_name="__main__")
+        os.chdir(test.case.working_dir)
+        run_path(os.path.join(test.case.working_dir, test.case.file), run_name="__main__")
     except SystemExit:
         pass
     finally:
-        test.result = XmlParser().vunit_xml(os.path.join(test.working_dir, os.path.join("vunit_out", "out.xml")),
+        test.result = XmlParser().vunit_xml(os.path.join(test.case.working_dir, os.path.join("vunit_out", "out.xml")),
                                             test.tool.name,
-                                            test.working_dir)
+                                            test.case.working_dir)
 
 
 def clean_build(wd):

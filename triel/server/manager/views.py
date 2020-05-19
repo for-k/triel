@@ -2,9 +2,9 @@ from rest_framework import mixins
 from rest_framework.viewsets import GenericViewSet, ReadOnlyModelViewSet, ModelViewSet
 
 from triel.server.manager.models.master_model import Language, Simulator, Suite
-from triel.server.manager.models.test_model import Test
+from triel.server.manager.models.test_model import Case, Test
 from triel.server.manager.serializer.master_serializer import LanguageSerializer, SimulatorSerializer, SuiteSerializer
-from triel.server.manager.serializer.test_serializer import TestSerializer
+from triel.server.manager.serializer.test_serializer import CaseSerializer, TestSerializer
 
 
 class OnlyUpdateViewSet(mixins.RetrieveModelMixin,
@@ -36,6 +36,14 @@ class SuiteViewSet(ReadOnlyModelViewSet):
     """
     queryset = Suite.objects.all()
     serializer_class = SuiteSerializer
+
+
+class CaseViewSet(ModelViewSet):
+    """
+    API endpoint that allows Tests to be viewed.
+    """
+    queryset = Case.objects.all()
+    serializer_class = CaseSerializer
 
 
 class TestViewSet(ModelViewSet):

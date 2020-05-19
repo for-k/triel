@@ -62,15 +62,24 @@ class SimulatorArgument(models.Model):
         unique_together = ('group', 'argument')
 
 
-class Test(models.Model):
-    suite = models.ForeignKey(Suite, on_delete=models.DO_NOTHING, blank=True)
-    name = models.CharField(max_length=255, null=True, blank=True)
+class Case(models.Model):
+    suite = models.ForeignKey(Suite, on_delete=models.DO_NOTHING, blank=True, null=True)
     date = models.DateTimeField(default=timezone.now, blank=True)
 
+    file = models.CharField(max_length=128, null=True, blank=True)
     working_dir = models.CharField(max_length=512, null=False)
+
+    result = models.TextField(blank=True)
+
+
+class Test(models.Model):
+    case = models.ForeignKey(Case, on_delete=models.DO_NOTHING, blank=True, null=True)
+    date = models.DateTimeField(default=timezone.now, blank=True)
+
+    name = models.CharField(max_length=255, null=True, blank=True)
+    top_level = models.CharField(max_length=128, null=True, blank=True)
     files = models.ManyToManyField(File)
     parameters = models.ManyToManyField(ParameterValue)
-    top_level = models.CharField(max_length=128, null=True, blank=True)
     tool = models.ForeignKey(Simulator, on_delete=models.DO_NOTHING, null=True, blank=True)
     tool_options = models.ManyToManyField(SimulatorArgument)
 
