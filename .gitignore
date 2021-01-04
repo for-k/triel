@@ -1,4 +1,3 @@
-# Created by .ignore support plugin (hsz.mobi)
 ### Python template
 # Byte-compiled / optimized / DLL files
 __pycache__/
@@ -10,7 +9,6 @@ __pycache__/
 
 # Distribution / packaging
 .Python
-env/
 build/
 develop-eggs/
 dist/
@@ -23,14 +21,17 @@ parts/
 sdist/
 var/
 wheels/
+share/python-wheels/
+*.egg-info/
 .installed.cfg
 *.egg
+MANIFEST
 
 # PyInstaller
 #  Usually these files are written by a python script from a template
 #  before PyInstaller builds the exe, so as to inject date/other infos into it.
 *.manifest
-#*.spec
+*.spec
 
 # Installer logs
 pip-log.txt
@@ -39,13 +40,17 @@ pip-delete-this-directory.txt
 # Unit test / coverage reports
 htmlcov/
 .tox/
+.nox/
 .coverage
 .coverage.*
 .cache
 nosetests.xml
 coverage.xml
-*,cover
+*.cover
+*.py,cover
 .hypothesis/
+.pytest_cache/
+cover/
 
 # Translations
 *.mo
@@ -54,6 +59,8 @@ coverage.xml
 # Django stuff:
 *.log
 local_settings.py
+db.sqlite3
+db.sqlite3-journal
 
 # Flask stuff:
 instance/
@@ -66,35 +73,70 @@ instance/
 docs/_build/
 
 # PyBuilder
+.pybuilder/
 target/
 
 # Jupyter Notebook
 .ipynb_checkpoints
 
-# pyenv
-.python-version
+# IPython
+profile_default/
+ipython_config.py
 
-# celery beat schedule file
+# PEP 582; used by e.g. github.com/David-OConnor/pyflow
+__pypackages__/
+
+# Celery stuff
 celerybeat-schedule
+celerybeat.pid
 
 # SageMath parsed files
 *.sage.py
 
-# dotenv
+# Environments
 .env
-
-# virtualenv
 .venv
+env/
 venv/
 ENV/
+env.bak/
+venv.bak/
 
 # Spyder project settings
 .spyderproject
+.spyproject
 
 # Rope project settings
 .ropeproject
 
-# PyCharm
-.idea/
-*.egg-info
-TODO.md
+# mkdocs documentation
+/site
+
+# mypy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Pyre type checker
+.pyre/
+
+# pytype static type analyzer
+.pytype/
+
+# Cython debug symbols
+cython_debug/
+
+### VirtualEnv template
+# Virtualenv
+[Bb]in
+[Ii]nclude
+[Ll]ib
+[Ll]ib64
+[Ll]ocal
+[Ss]cripts
+pyvenv.cfg
+pip-selfcheck.json
+
+### IDE template
+.idea
+.vscode
