@@ -1,9 +1,0 @@
-<?xml version='1.0' encoding='UTF-8'?>
-<testsuites name="results">
-  <testsuite name="all" package="all" tests="0">
-    <property name="random_seed" value="1569007592" />
-    <testcase classname="test_adder" name="adder_basic2_test" ratio_time="0.0349459972989258" sim_time_ns="0.000401" time="0.011474847793579102" />
-    <testcase classname="test_adder" name="adder_basic_test" ratio_time="0.03927140898477632" sim_time_ns="0.000401" time="0.010210990905761719" />
-    <testcase classname="test_adder" name="adder_random_test" ratio_time="0.03941197132793989" sim_time_ns="0.002201" time="0.05584597587585449" />
-  </testsuite>
-</testsuites>
