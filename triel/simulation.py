@@ -25,9 +25,7 @@
 import logging
 import os
 import shutil
-from subprocess import Popen, PIPE, STDOUT
 from typing import Dict
-from unittest.mock import patch
 
 import edalize
 
@@ -36,14 +34,6 @@ from triel.topic import SimulationConsumer, TrielTopic
 
 WORK_DIRECTORY = "work_directory"
 TOOL_OPTIONS = "tool_options"
-
-
-def check_call_patched(sim_id: int, *popenargs, **kwargs):
-    p = Popen(*popenargs, **kwargs, stdout=PIPE, stderr=STDOUT)
-    while p.returncode is not None:
-        for line in p.stdout:
-            Broker.produce(TrielTopic.SIMULATION_STDOUT, (sim_id, line))
-    return p.returncode
 
 
 def search_for_wave_files(folder):
@@ -66,51 +56,50 @@ class EdalizeLauncher(SimulationConsumer):
 
         work_root = os.path.join(tedam_json.pop(WORK_DIRECTORY), "build")
         self.clean_build(work_root)
+        os.makedirs(work_root)
 
         tool = tuple(tedam_json.get(TOOL_OPTIONS, {}).keys())[0]
 
         backend = edalize.get_edatool(tool)(edam=tedam_json, work_root=work_root)
-        os.makedirs(work_root)
+
+        # Broker.produce(TrielTopic.SIMULATION_STDOUT, (self.sim_id, line))
+        # with open(os.path.join(work_root, "stdout"), "a+") as stdout:
+        #     backend.stdout = stdout
+        #     backend.stderr = stdout
 
         Broker.produce(
             TrielTopic.SIMULATION_STARTED_RES,
             {"sim_id": self.sim_id},
         )
 
-        with patch("edalize.edatool.subprocess.check_call") as check_call_mock:
-            try:
-                check_call_mock.side_effect = (
-                    lambda *popenargs, **kwargs: check_call_patched(
-                        self.sim_id, *popenargs, **kwargs
-                    )
-                )
-                backend.configure()
-                backend.build()
-                backend.run()
-            except Exception as err:
-                logging.exception(err)
-            finally:
-                result = {
-                    "summary": {
-                        "test": 1,
-                        "failures": "---",
-                        "errors": "---",
-                        "skipped": "--",
-                    },
-                    "test": [
-                        {
-                            "classname": "Edalize",
-                            "name": "---",
-                            "time": "---",
-                            "test": "---",
-                            "waveform": search_for_wave_files(work_root),
-                        }
-                    ],
-                }
-                Broker.produce(
-                    TrielTopic.SIMULATION_FINISHED_RES,
-                    {"sim_id": self.sim_id, "result": result},
-                )
+        try:
+            backend.configure()
+            backend.build()
+            backend.run()
+        except Exception as err:
+            logging.exception(err)
+        finally:
+            result = {
+                "summary": {
+                    "test": 1,
+                    "failures": "---",
+                    "errors": "---",
+                    "skipped": "--",
+                },
+                "test": [
+                    {
+                        "classname": "Edalize",
+                        "name": "---",
+                        "time": "---",
+                        "test": "---",
+                        "waveform": search_for_wave_files(work_root),
+                    }
+                ],
+            }
+            Broker.produce(
+                TrielTopic.SIMULATION_FINISHED_RES,
+                {"sim_id": self.sim_id, "result": result},
+            )
 
     def on_cancel_simulation(self, sim_id: int):
         # TODO

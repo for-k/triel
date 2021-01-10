@@ -1,6 +1,6 @@
 {
   "work_directory": "",
-  "top_level": "half_adder_simple_tb",
+  "toplevel": "half_adder_simple_tb",
   "name": "example_prj",
   "files": [
     {
@@ -20,9 +20,14 @@
   ],
   "tool_options": {
     "ghdl": {
-      "installation_path": "",
-      "analize": "",
-      "run": ""
+      "analyze_options": [
+        "-fexplicit",
+        "--no-vital-checks",
+        "-frelaxed-rules"
+      ],
+      "run_options": [
+        "--disp-time"
+      ]
     }
   }
 }

@@ -50,6 +50,8 @@ class SimpleTest(TestCase):
             content = fd.read()
             tedam = json.loads(content)
             tedam["work_directory"] = os.path.join(os.path.dirname(__file__), "simple_vhdl")
+            for file in tedam["files"]:
+                file["name"] = os.path.join(os.path.dirname(__file__), "simple_vhdl", file["name"])
             return json.dumps(tedam)
 
     def test_graph(self):
@@ -74,7 +76,18 @@ class SimpleTest(TestCase):
         skt = TcpClient()
         try:
             skt.sendall(f"simulate,{self.get_project_tedam()}")
-            response = skt.read()
+            while True:
+                response = skt.read()
+                if response:
+                    cmd, data = response.split(",", maxsplit=1)
+                    if cmd == "simulate":
+                        print(f"--- {data}")
+                        if "result" in json.loads(data).keys():
+                            break
+                    elif cmd == "stdout":
+                        sim_id, data = data.split(",", maxsplit=1)
+                        print(data)
+
         except Exception as err:
             logging.exception(err)
         finally:

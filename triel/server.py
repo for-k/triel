@@ -11,6 +11,10 @@ class Commands(Enum):
     GRAPH = "graph"
     SIMULATION = "simulate"
     CANCEL_SIMULATION = "cancel_simulation"
+    STDOUT = "stdout"
+
+    def __str__(self):
+        return self.value
 
 
 class TrielServer(Tcp, ResponseConsumer):
@@ -28,14 +32,14 @@ class TrielServer(Tcp, ResponseConsumer):
     def on_graph_response(self, diagraph: str):
         self.write(f"{Commands.GRAPH.value}{self.SEPARATOR}{diagraph}")
 
-    def on_simulation_started_response(self, tedam_json: Dict):
-        pass
+    def on_simulation_started_response(self, info: Dict):
+        self.write(f"{Commands.SIMULATION}{self.SEPARATOR}{json.dumps(info)}")
 
-    def on_simulation_finished_response(self, tedam_json: Dict):
-        pass
+    def on_simulation_finished_response(self, info: Dict):
+        self.write(f"{Commands.SIMULATION}{self.SEPARATOR}{json.dumps(info)}")
 
-    def on_cancel_simulation_response(self, tedam_json: Dict):
-        pass
+    def on_cancel_simulation_response(self, info: Dict):
+        self.write(f"{Commands.SIMULATION}{self.SEPARATOR}{json.dumps(info)}")
 
     def on_stdout(self, sim_id: int, msg: str):
-        pass
+        self.write(f"{Commands.STDOUT}{self.SEPARATOR}{sim_id}{self.SEPARATOR}{msg}")
