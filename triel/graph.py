@@ -23,8 +23,8 @@
 
 """
 import contextlib
-import json
 import os
+from pathlib import Path
 from typing import Dict
 
 from vunit.project import Project
@@ -32,6 +32,8 @@ from vunit.vhdl_standard import VHDL
 
 from triel.broker import Broker
 from triel.topic import GraphConsumer, TrielTopic
+
+WORK_DIRECTORY = "work_directory"
 
 
 def get_direct_dependencies(project):
@@ -56,10 +58,17 @@ class EdalizeGraphDependency(GraphConsumer):
         for file in tedam_json["files"]:
             with contextlib.suppress(ValueError):
                 project.add_library(file["logical_name"], tedam_json["work_directory"])
+            suffix = Path(file["name"]).suffix
+            if suffix == ".v" or suffix == ".vh" or suffix == ".vl":
+                filetype = "verilog"
+            elif suffix == ".sv" or suffix == ".svh":
+                filetype = "systemverilog"
+            else:
+                filetype = "vhdl"
             project.add_source_file(
-                file["name"],
+                os.path.join(tedam_json[WORK_DIRECTORY], file["name"]),
                 file["logical_name"],
-                file_type=file["file_type"],
+                file_type=filetype,
                 vhdl_standard=VHDL.STD_2008,
             )
 
@@ -94,4 +103,4 @@ class EdalizeGraphDependency(GraphConsumer):
                             + '"\n'
                     )
         diagram += "}"
-        Broker.produce(TrielTopic.GRAPH_RES, json.loads(diagram))
+        Broker.produce(TrielTopic.GRAPH_RES, diagram)

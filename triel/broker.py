@@ -49,7 +49,8 @@ class Consumer:
 
     CONSUMER_SLEEP = 0.1
 
-    def __init__(self):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
         self.internal_queue: Queue[Optional[QueueData]] = Queue()
         self.consumer_methods: Dict[
             Topic, Callable

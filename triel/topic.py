@@ -74,12 +74,34 @@ class SimulationConsumer(Consumer):
         pass
 
 
-class StdoutConsumer(Consumer):
-    def __init__(self):
-        super().__init__()
+class ResponseConsumer(Consumer):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.activate_consumer(TrielTopic.GRAPH_RES, self.on_graph_response)
+        self.activate_consumer(TrielTopic.SIMULATION_STARTED_RES, self.on_simulation_started_response)
+        self.activate_consumer(TrielTopic.SIMULATION_FINISHED_RES, self.on_simulation_finished_response)
+        self.activate_consumer(
+            TrielTopic.CANCEL_SIMULATION_RES, self.on_cancel_simulation_response
+        )
         self.activate_consumer(
             TrielTopic.SIMULATION_STDOUT, lambda args: self.on_stdout(*args)
         )
+
+    @abstractmethod
+    def on_graph_response(self, tedam_json: Dict):
+        pass
+
+    @abstractmethod
+    def on_simulation_started_response(self, tedam_json: Dict):
+        pass
+
+    @abstractmethod
+    def on_simulation_finished_response(self, tedam_json: Dict):
+        pass
+
+    @abstractmethod
+    def on_cancel_simulation_response(self, tedam_json: Dict):
+        pass
 
     @abstractmethod
     def on_stdout(self, sim_id: int, msg: str):

@@ -22,6 +22,7 @@
  along with Triel.  If not, see <https://www.gnu.org/licenses/>.
 
 """
+import logging
 import os
 import shutil
 from subprocess import Popen, PIPE, STDOUT
@@ -86,8 +87,8 @@ class EdalizeLauncher(SimulationConsumer):
                 backend.configure()
                 backend.build()
                 backend.run()
-            except:
-                pass
+            except Exception as err:
+                logging.exception(err)
             finally:
                 result = {
                     "summary": {

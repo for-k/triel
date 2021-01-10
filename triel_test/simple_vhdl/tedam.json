@@ -1,0 +1,28 @@
+{
+  "work_directory": "",
+  "top_level": "half_adder_simple_tb",
+  "name": "example_prj",
+  "files": [
+    {
+      "name": "half_adder.vhd",
+      "file_type": "vhdlSource-2008",
+      "is_include_file": false,
+      "include_path": "",
+      "logical_name": ""
+    },
+    {
+      "name": "half_adder_simple_tb.vhd",
+      "file_type": "vhdlSource-2008",
+      "is_include_file": false,
+      "include_path": "",
+      "logical_name": ""
+    }
+  ],
+  "tool_options": {
+    "ghdl": {
+      "installation_path": "",
+      "analize": "",
+      "run": ""
+    }
+  }
+}

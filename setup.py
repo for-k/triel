@@ -44,6 +44,6 @@ setup(
     include_package_data=True,
     install_requires=[
         "edalize < 1",
-        "vunit_hdl < 5"
+        "vunit_hdl < 5",
     ],
 )

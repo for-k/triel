@@ -22,10 +22,31 @@
  along with Triel.  If not, see <https://www.gnu.org/licenses/>.
 
 """
+from argparse import ArgumentParser
+
+from triel.graph import EdalizeGraphDependency
+from triel.server import TrielServer
+from triel.simulation import EdalizeLauncher
+
+DEFAULT_PORT = 8472
+
+
+def argument_parser():
+    parser = ArgumentParser(description="Triel")
+    parser.add_argument(
+        "-p", "--port", type=int, help="Server port", default=DEFAULT_PORT,
+    )
+    return parser.parse_args()
 
 
 def main():
-    pass
+    # Read input parameters
+    args = argument_parser()
+    # Activate services
+    EdalizeGraphDependency()
+    EdalizeLauncher()
+    # Launch Server listener
+    TrielServer(args.port)
 
 
 if __name__ == "__main__":

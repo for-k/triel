@@ -24,7 +24,8 @@
 """
 
 import logging
-from _socket import SOCK_STREAM, AF_INET, SOL_SOCKET, SO_REUSEADDR, timeout, socket
+from abc import abstractmethod
+from socket import SOCK_STREAM, AF_INET, SOL_SOCKET, SO_REUSEADDR, timeout, socket
 from threading import Event, Thread, current_thread
 from time import sleep
 from typing import List, Optional
@@ -37,7 +38,10 @@ class Tcp:
     TCP_SOCKET_READ_BUFFER_SIZE = 4026
     TCP_MAX_CONNECTIONS = 5
 
-    def __init__(self, port: int):
+    def __init__(self, port: int, codec: str = "utf-8", *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.codec: str = codec
         self.clients: List[socket] = []  # Maintain a list of clients
 
         self.stop_reading: Event = Event()
@@ -86,11 +90,11 @@ class Tcp:
             except Exception:
                 break
 
-    def write(self, frame: bytes) -> None:
+    def write(self, frame: str) -> None:
         for client in self.clients:
             try:
                 client.settimeout(None)
-                client.sendall(frame)
+                client.sendall(frame.encode(self.codec))
                 client.settimeout(self.skt.gettimeout())
             except Exception:
                 pass
@@ -115,6 +119,7 @@ class Tcp:
         # Close main socket
         self.skt.close()
 
+    @abstractmethod
     def parse_data(self, data: str):
         pass
 
